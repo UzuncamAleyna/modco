@@ -12,16 +12,36 @@ const items = [
     },
     {
         id: 2,
-        name: 'Pants',
-        price: 20,
-        category: 'clothing',
+        name: 'Pink Fairy Tale Dress',
+        price: 55,
+        brand: 'Esméé Rose',
+        image: PinkDress,
+        category: 'Dresses',
     },
     {
         id: 3,
-        name: 'Sweater',
-        price: 30,
-        category: 'clothing',
+        name: 'Pink Fairy Tale Dress',
+        price: 66,
+        brand: 'Esméé Rose',
+        image: PinkDress,
+        category: 'Dresses',
     },
+    {
+        id: 4,
+        name: 'Pink Fairy Tale Dress',
+        price: 22,
+        brand: 'Esméé Rose',
+        image: PinkDress,
+        category: 'Dresses',
+    },
+    {
+        id: 5,
+        name: 'Pink Fairy Tale Dress',
+        price: 22,
+        brand: 'Esméé Rose',
+        image: PinkDress,
+        category: 'Dresses',
+    }
     ];
 
 export default items;
