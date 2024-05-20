@@ -1,11 +1,13 @@
-import { StyleSheet, Image, ScrollView } from 'react-native';
-
-import EditScreenInfo from '@/src/components/EditScreenInfo';
-import { Text, View } from '@/src/components/Themed';
+import { StyleSheet, Image } from 'react-native';
+import { Text, View } from 'react-native';
 import Colors from '@/src/constants/Colors';
+import { Item } from '../types';
 
+type ProductListItemProps = { 
+    item: Item;
+};
 
-const ProductListItem = ({item}: {item: any}) => {
+const ProductListItem = ({item}: ProductListItemProps) => {
   return (
     <View style={styles.itemContainer}>
       <Image source={item.image} style={styles.image} />

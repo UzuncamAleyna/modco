@@ -1,13 +1,11 @@
 import { StyleSheet, ScrollView } from 'react-native';
-
-import EditScreenInfo from '@/src/components/EditScreenInfo';
-import { Text, View } from '@/src/components/Themed';
 import Colors from '@/src/constants/Colors';
 import items from '../../../assets/data/clothingItems';
 import ProductListItem from '@/src/components/ProductListItem';
 
 
 export default function Home() {
+  
   return (
     <ScrollView horizontal style={styles.container}>
       <ProductListItem item={items[0]} />

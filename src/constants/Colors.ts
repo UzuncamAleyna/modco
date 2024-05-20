@@ -4,6 +4,7 @@ const tintColorDark = '#fff';
 const white = '#fff';
 const black = '#000';
 const lightGrey = '#C0C0C0';
+const lightestGrey = '#ccc';
 const grey = '#8F8F8F';
 const blue = '#0E00CF';
 const bluePurple = '#3426CF';
@@ -37,4 +38,5 @@ export default {
   black,
   lightGrey,
   grey,
+  lightestGrey,
 };

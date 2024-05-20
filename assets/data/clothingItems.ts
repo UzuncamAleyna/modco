@@ -1,6 +1,5 @@
 const PinkDress = require('../images/pink-dress.jpg');
 
-
 const items = [
     {
         id: 1,
