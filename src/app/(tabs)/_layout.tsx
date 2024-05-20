@@ -63,6 +63,7 @@ export default function TabLayout() {
         name="home"
         options={{
           title: 'Home',
+          headerTitle: 'MODCO',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} library='Octicons' />,
           headerRight: () => (
             <Link href="/modal" asChild>
@@ -82,7 +83,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Zoek',
+          title: 'Zoeken',
           tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} library='Octicons' />,
         }}
       />

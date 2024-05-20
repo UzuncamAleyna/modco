@@ -41,10 +41,10 @@ const styles = StyleSheet.create({
   },
   brand: {
     fontSize: 18,
-    color: Colors.light.tint,
+    color: Colors.blueIris,
   },
   price: {
     fontSize: 18,
-    color: Colors.light.tint,
+    color: Colors.blueIris,
   },
 });

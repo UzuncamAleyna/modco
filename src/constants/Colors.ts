@@ -1,6 +1,3 @@
-const tintColorLight = '#2f95dc';
-const tintColorDark = '#fff';
-
 const white = '#fff';
 const black = '#000';
 const lightGrey = '#C0C0C0';
@@ -14,20 +11,6 @@ const lilac = '#A6A2CF';
 const lightPurple = '#D3D1EA';
 
 export default {
-  light: {
-    text: '#000',
-    background: '#fff',
-    tint: blueIris,
-    tabIconDefault: '#ccc',
-    tabIconSelected: blueIris,
-  },
-  dark: {
-    text: '#fff',
-    background: '#000',
-    tint: tintColorDark,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorDark,
-  },
   blue,
   bluePurple,
   blueIris,
