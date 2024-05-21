@@ -13,7 +13,6 @@ const Fonts = {
     },
     MonumentExtended: {
       Black: require('../../assets/fonts/MonumentExtended/PPMonumentExtended-Black.otf'),
-      BlackItalic: require('../../assets/fonts/MonumentExtended/PPMonumentExtended-BlackItalic.otf'),
       Light: require('../../assets/fonts/MonumentExtended/PPMonumentExtended-Light.otf'),
       LightItalic: require('../../assets/fonts/MonumentExtended/PPMonumentExtended-LightItalic.otf'),
       Regular: require('../../assets/fonts/MonumentExtended/PPMonumentExtended-Regular.otf'),

@@ -41,7 +41,6 @@ function TabBarIcon(props: OcticonProps & FontAwesomeProps & MaterialIconsProps 
   }
 }
 
-
 export default function TabLayout() {
 
   return (
@@ -60,7 +59,7 @@ export default function TabLayout() {
         },
       }}>
       <Tabs.Screen
-        name="home"
+        name="index"
         options={{
           title: 'Home',
           headerTitle: 'MODCO',
