@@ -1,27 +1,62 @@
+import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Text, View } from 'react-native';
+import items from '../../../assets/data/clothingItems';
+import { Text, View, ScrollView, Pressable } from 'react-native';
+import SearchBar from '@/src/components/SearchBar';
+import Colors from '@/src/constants/Colors';
 
 export default function Search() {
+  const [selectedTab, setSelectedTab] = useState('Dames');
+
+  // Filter items based on selected tab
+  const filteredItems = items.filter(item => item.category === selectedTab);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>MODCO</Text>
-    </View>
+    <ScrollView style={styles.container}>
+      <SearchBar />
+      <View style={styles.tabContainer}>
+        <Pressable
+          style={[styles.tab, selectedTab === 'Dames' && styles.activeTab]}
+          onPress={() => setSelectedTab('Dames')}
+        >
+          <Text style={[styles.tabText, selectedTab === 'Dames' && styles.activeTabText]}>Dames</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.tab, selectedTab === 'Heren' && styles.activeTab]}
+          onPress={() => setSelectedTab('Heren')}
+        >
+          <Text style={[styles.tabText, selectedTab === 'Heren' && styles.activeTabText]}>Heren</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: Colors.white,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  tab: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  tabText: {
+    fontSize: 14,
+    color: Colors.grey,
+    fontFamily: 'PPMonumentExtended-Regular',
+
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.blueIris,
+  },
+  activeTabText: {
+    color: Colors.blueIris,
   },
 });

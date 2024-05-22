@@ -24,3 +24,9 @@ export type OrderStatus = {
     delivered: 'geleverd',
     canceled: 'geannuleerd',
 };
+
+export type CategoryItemType = {
+    id: number;
+    name: string;
+    image: any;
+};

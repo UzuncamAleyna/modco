@@ -31,8 +31,8 @@ const ProductListSection: React.FC<ProductListSectionProps> = ({ title }) => {
 const styles = StyleSheet.create({
     title: {
       fontSize: 24,
-      fontWeight: 'bold',
-      color: Colors.blueIris,
+      fontFamily: 'Roboto-Regular',
+      color: Colors.black,
       marginBottom: 10,
     },
     scrollContainer: {
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
       color: Colors.black,
-      fontWeight: 'bold',
+      fontFamily: 'Roboto-Regular',
       textAlign: 'center',
     },
   });

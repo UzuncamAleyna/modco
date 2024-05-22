@@ -1,48 +1,34 @@
 import React from 'react';
 import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
-
+import { Pressable, StyleSheet } from 'react-native';
 import Colors from '@/src/constants/Colors';
 import { useClientOnlyValue } from '@/src/components/useClientOnlyValue';
 import { Octicons, FontAwesome, MaterialIcons, Feather } from '@expo/vector-icons';
+import Fonts from '@/src/constants/Fonts';
+
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-type OcticonProps = {
-  name: React.ComponentProps<typeof Octicons>['name'];
-  color: string;
-};
 
-type FontAwesomeProps = {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-};
-
-type MaterialIconsProps = {
-  name: React.ComponentProps<typeof MaterialIcons>['name'];
-  color: string;
-};
-
-type FeatherProps = {
-  name: React.ComponentProps<typeof Feather>['name'];
-  color: string;
-};
-
-
-function TabBarIcon(props: OcticonProps & FontAwesomeProps & MaterialIconsProps & FeatherProps & { library: 'Octicons' | 'FontAwesome' | 'MaterialIcons' | 'Feather'}) {
+function TabBarIcon(props) {
   const { library, ...iconProps } = props;
   if (library === 'Octicons') {
-    return <Octicons size={24} style={{ marginBottom: -3 }} {...iconProps as OcticonProps} />;
+    return <Octicons size={24} style={{ marginBottom: -3 }} {...iconProps} />;
   } else if (library === 'FontAwesome') {
-    return <FontAwesome size={24} style={{ marginBottom: -3 }} {...iconProps as FontAwesomeProps} />;
+    return <FontAwesome size={24} style={{ marginBottom: -3 }} {...iconProps} />;
   } else if (library === 'MaterialIcons') {
-    return <MaterialIcons size={24} style={{ marginBottom: -3 }} {...iconProps as MaterialIconsProps} />;
+    return <MaterialIcons size={24} style={{ marginBottom: -3 }} {...iconProps} />;
   } else if (library === 'Feather') {
-    return <Feather size={24} style={{ marginBottom: -3 }} {...iconProps as FeatherProps} />;
+    return <Feather size={24} style={{ marginBottom: -3 }} {...iconProps} />;
   }
 }
 
-export default function TabLayout() {
+const styles = StyleSheet.create({
+  tabBarLabel: {
+    fontFamily: 'Roboto-Regular',
+  },
+});
 
+export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
@@ -57,12 +43,17 @@ export default function TabLayout() {
           borderTopWidth: 1,
           paddingTop: 10,
         },
+        tabBarLabelStyle: styles.tabBarLabel,
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
           headerTitle: 'MODCO',
+          headerTitleStyle: {
+            fontFamily: 'PPMonumentExtended-Regular',
+            fontSize: 20,
+          },
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} library='Octicons' />,
           headerRight: () => (
             <Link href="/modal" asChild>
