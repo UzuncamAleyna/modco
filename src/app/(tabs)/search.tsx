@@ -14,7 +14,9 @@ export default function Search() {
 
   return (
     <ScrollView style={styles.container}>
-      <SearchBar />
+      <View style={styles.searchBarContainer}>
+        <SearchBar />
+      </View>
       <View style={styles.tabContainer}>
         <Pressable
           style={[styles.tab, selectedTab === 'Dames' && styles.activeTab]}
@@ -36,13 +38,11 @@ export default function Search() {
 
 const styles = StyleSheet.create({
   container: {
-    // padding: 20,
     backgroundColor: Colors.white,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginVertical: 10,
     marginBottom: 30,
   },
   tab: {
@@ -61,5 +61,8 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     color: Colors.blueIris,
+  },
+  searchBarContainer: {
+    padding: 20,
   },
 });
