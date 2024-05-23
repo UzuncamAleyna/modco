@@ -1,3 +1,4 @@
+//HOME SCREEN
 export type Item = {
     id: number;
     name: string;
@@ -30,3 +31,11 @@ export type CategoryItemType = {
     name: string;
     image: any;
 };
+
+
+//SEARCH SCREEN
+export type SearchItemType = {
+    name: string;
+    subcategories?: SearchItemType[];
+};
+

@@ -4,6 +4,7 @@ import items from '../../../assets/data/clothingItems';
 import { Text, View, ScrollView, Pressable } from 'react-native';
 import SearchBar from '@/src/components/SearchBar';
 import Colors from '@/src/constants/Colors';
+import SearchCategoryList from '@/src/components/SearchScreen/SearchCategoryList';
 
 export default function Search() {
   const [selectedTab, setSelectedTab] = useState('Dames');
@@ -28,6 +29,7 @@ export default function Search() {
           <Text style={[styles.tabText, selectedTab === 'Heren' && styles.activeTabText]}>Heren</Text>
         </Pressable>
       </View>
+      <SearchCategoryList />
     </ScrollView>
   );
 }
