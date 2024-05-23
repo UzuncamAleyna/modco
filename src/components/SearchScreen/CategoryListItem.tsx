@@ -25,10 +25,10 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'space-between',
         alignItems: 'center',
-        margin: 10,
+        marginTop: 10,
+        marginBottom: 10,
     },
     text: {
-        marginTop: 10,
         fontSize: 16,
         fontFamily: 'Roboto-Regular',
     },
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.lightGrey,
         height: 1,
         width: '100%',
-        marginTop: 10,
+        marginTop: 15,
     },
     icon: {
         color: Colors.blueIris,
@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
+        paddingHorizontal: 20,
     },
 });
 

@@ -36,13 +36,14 @@ export default function Search() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    // padding: 20,
     backgroundColor: Colors.white,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginVertical: 10,
+    marginBottom: 30,
   },
   tab: {
     paddingVertical: 10,
