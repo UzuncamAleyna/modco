@@ -39,3 +39,7 @@ export type SearchItemType = {
     subcategories?: SearchItemType[];
 };
 
+export type ProfileItemType = {
+    name: string;
+    icon: any;
+};

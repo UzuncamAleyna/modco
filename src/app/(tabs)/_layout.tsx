@@ -95,6 +95,11 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profiel',
+          headerTitle: 'Mijn Profiel',
+          headerTitleStyle: {
+            fontFamily: 'PPMonumentExtended-Regular',
+            fontSize: 14,
+          },
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} library='Feather' />,
         }}
       />
