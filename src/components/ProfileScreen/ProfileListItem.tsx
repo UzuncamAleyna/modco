@@ -8,10 +8,10 @@ import SvgComponent from '../Icons/ProfileIcon';
 type ProfileListItemProps = {
     name: string;
     onPress: () => void;
-    iconSource: string; 
+
 };
 
-const ProfileListItem = ({ name, onPress, iconSource }: ProfileListItemProps) => {
+const ProfileListItem = ({ name, onPress }: ProfileListItemProps) => {
     return (
         <Pressable onPress={onPress} style={styles.itemContainer}>
             <View style={styles.contentContainer}>

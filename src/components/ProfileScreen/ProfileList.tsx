@@ -30,7 +30,6 @@ const ProfileList = () => {
                     key={index}
                     name={option.name}
                     onPress={() => handlePress(option.name)}
-                    iconSource={require('../../../assets/icons/person.svg')}
                 />
             ))}
         </View>
