@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Tabs } from 'expo-router';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import Colors from '@/src/constants/Colors';
 import { useClientOnlyValue } from '@/src/components/useClientOnlyValue';
 import { Octicons, FontAwesome, MaterialIcons, Feather } from '@expo/vector-icons';
@@ -89,6 +89,13 @@ export default function TabLayout() {
         options={{
           title: 'Favorieten',
           tabBarIcon: ({ color }) => <TabBarIcon name="heart" color={color} library='Octicons' />,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => {
+              // Voeg hier de logica toe om de favorieten te wissen
+            }}>
+              <Text style={{ marginRight: 20, borderColor: 'black', borderWidth: 0.25, borderRadius: 5, padding: 5 }}>Wis</Text>
+            </TouchableOpacity>
+          ),
         }}
       />
       <Tabs.Screen
