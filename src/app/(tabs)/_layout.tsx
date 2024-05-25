@@ -45,29 +45,32 @@ export default function TabLayout() {
         },
         tabBarLabelStyle: styles.tabBarLabel,
       }}>
+      <Tabs.Screen name='index' options={{ href: null }}/>
+
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title: 'Home',
+          headerShown: false,
           headerTitle: 'MODCO',
           headerTitleStyle: {
             fontFamily: 'PPMonumentExtended-Regular',
             fontSize: 20,
           },
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} library='Octicons' />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
+          // headerRight: () => (
+          //   <Link href="/modal" asChild>
+          //     <Pressable>
+          //       {({ pressed }) => (
+          //         <FontAwesome
+          //           name="info-circle"
+          //           size={25}
+          //           style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+          //         />
+          //       )}
+          //     </Pressable>
+          //   </Link>
+          // ),
         }}
       />
       <Tabs.Screen

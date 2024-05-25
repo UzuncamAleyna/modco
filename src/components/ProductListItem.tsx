@@ -1,4 +1,4 @@
-import { StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity, Pressable } from 'react-native';
 import { Text, View } from 'react-native';
 import Colors from '@/src/constants/Colors';
 import { Item } from '../types';
@@ -7,6 +7,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import { Link } from 'expo-router'
 
 type ProductListItemProps = { 
     item: Item;
@@ -54,7 +55,8 @@ const ProductListItem = ({item}: ProductListItemProps) => {
   });
 
   return (
-    <View style={styles.itemContainer}>
+    <Link href={`/home/${item.id}`} asChild>  
+    <Pressable style={styles.itemContainer}>
       <Image source={item.image} style={styles.image} />
       <TouchableOpacity style={styles.heartButton}>
         <Icon name="heart" size={24} color={Colors.blueIris} />
@@ -62,7 +64,8 @@ const ProductListItem = ({item}: ProductListItemProps) => {
       <Text style={styles.title}>{item.name}</Text>
       <Text style={styles.brand}>{item.brand}</Text>
       <Text style={styles.price}>€ {item.price}</Text>
-    </View>
+    </Pressable>
+    </Link>
   );
 }
 
