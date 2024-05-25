@@ -74,6 +74,11 @@ export default function TabLayout() {
         name="search"
         options={{
           title: 'Zoeken',
+          headerTitle: 'Zoeken',
+          headerTitleStyle: {
+            fontFamily: 'PPMonumentExtended-Regular',
+            fontSize: 14,
+          },
           tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} library='Octicons' />,
         }}
       />
@@ -81,6 +86,11 @@ export default function TabLayout() {
         name="sell"
         options={{
           title: 'Verkopen',
+          headerTitle: 'Verkopen',
+          headerTitleStyle: {
+            fontFamily: 'PPMonumentExtended-Regular',
+            fontSize: 14,
+          },
           tabBarIcon: ({ color }) => <TabBarIcon name="add-circle" color={color} library='MaterialIcons' />,
         }}
       />
@@ -88,6 +98,11 @@ export default function TabLayout() {
         name="favorites"
         options={{
           title: 'Favorieten',
+          headerTitle: 'Mijn favorieten',
+          headerTitleStyle: {
+            fontFamily: 'PPMonumentExtended-Regular',
+            fontSize: 14,
+          },
           tabBarIcon: ({ color }) => <TabBarIcon name="heart" color={color} library='Octicons' />,
           headerRight: () => (
             <TouchableOpacity onPress={() => {
