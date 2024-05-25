@@ -36,7 +36,7 @@ const SellItem = ({ index, onRemove }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Artikel {index + 1}</Text>
+      <Text style={styles.title}>Artikel Titel {index + 1}</Text>
       <TextInput style={styles.input} />
       <Text style={styles.label}>Voeg max. 5 foto’s toe:</Text>
       <View style={styles.photosContainer}>

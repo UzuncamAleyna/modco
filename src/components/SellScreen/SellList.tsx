@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import SellItem from './SellItem';
 import Colors from '@/src/constants/Colors';
+import RadioButton from '../RadioButton/RadioButton';
 
 const SellList = () => {
   const [collectionTitle, setCollectionTitle] = useState('');
   const [items, setItems] = useState([]);
+  const [gender, setGender] = useState('');
 
   const addItem = () => {
     setItems([...items, {}]);
@@ -29,7 +31,20 @@ const SellList = () => {
         value={collectionTitle}
         onChangeText={setCollectionTitle}
       />
-    <View style={styles.separator} />
+    <Text style={styles.radioGroupLabel}>Selecteer geslacht:</Text>
+      <View style={styles.radioGroup}>
+        <RadioButton
+          selected={gender === 'Dames'}
+          onPress={() => setGender('Dames')}
+          label="Dames"
+        />
+        <RadioButton
+          selected={gender === 'Heren'}
+          onPress={() => setGender('Heren')}
+          label="Heren"
+        />
+      </View>
+      <View style={styles.separator} />
       {items.map((_, index) => (
         <SellItem key={index} index={index} onRemove={removeItem} />
       ))}
@@ -93,6 +108,16 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 10,
     },
+    radioGroup: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginBottom: 15,
+      },
+      radioGroupLabel: {
+        fontSize: 16,
+        fontFamily: 'Roboto-Regular',
+        marginBottom: 10,
+      },
 });
 
 export default SellList;
