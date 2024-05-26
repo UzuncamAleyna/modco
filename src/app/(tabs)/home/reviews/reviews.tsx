@@ -39,6 +39,10 @@ const Reviews = () => {
           headerShown: true,
           headerTransparent: false,
           headerTitle: 'Beoordelingen',
+          headerTitleStyle: {
+            fontFamily: 'PPMonumentExtended-Regular',
+            fontSize: 14,
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={{backgroundColor: 'rgba(255,255,255,0.7)', borderRadius:20, padding: 10, marginLeft:10, marginBottom: 10, width: 40, height: 40}}>
               <Icon name="chevron-left" size={24} color={Colors.black} style={{marginLeft:5}}/>
@@ -63,6 +67,7 @@ const Reviews = () => {
             <Text style={styles.reviewAuthor}>{review.author}</Text>
             <Text style={styles.reviewDate}>{review.date}</Text>
           </View>
+          <Text style={styles.reviewFitting}>{review.fitting}</Text>
           <View style={styles.reviewStars}>
             {[...Array(review.rating)].map((_, i) => (
               <RatingStar key={i} name="star" size={16} color={Colors.blueIris} />
@@ -79,14 +84,14 @@ const Reviews = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: Colors.white,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.white,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 40, // Adjust this value based on your need
+    paddingTop: 40,
     paddingBottom: 10,
     paddingHorizontal: 15,
     backgroundColor: 'rgba(255,255,255,0.7)',
@@ -132,13 +137,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   reviewAuthor: {
-    fontSize: 16,
-    fontFamily: 'Roboto-Bold',
+    fontSize: 14,
+    fontFamily: 'Roboto-Regular',
+    color: Colors.grey,
   },
   reviewDate: {
     fontSize: 14,
     color: Colors.grey,
   },
+    reviewFitting: {
+        fontSize: 16,
+        color: Colors.black,
+        marginTop: 5,
+        fontFamily: 'Roboto-Bold',
+    },
   reviewStars: {
     flexDirection: 'row',
     marginTop: 5,

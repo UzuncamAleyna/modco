@@ -30,6 +30,10 @@ const SectionScreen = () => {
           headerShown: true,
           headerTransparent: false,
           headerTitleAlign: 'center',
+          headerTitleStyle: {
+            fontFamily: 'PPMonumentExtended-Regular',
+            fontSize: 14,
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <Icon name="chevron-left" size={24} color={Colors.black} />
@@ -37,13 +41,14 @@ const SectionScreen = () => {
           ),
         }} 
       />
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.sortButton}>
+      <View style={styles.filterSortContainer}>
+        <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Sorteren op</Text>
+          <Icon name="chevron-down" size={16} color={Colors.black} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-          <Icon name="filter" size={20} color={Colors.black} />
+        <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Filter</Text>
+          <Icon name="filter" size={16} color={Colors.black} />
         </TouchableOpacity>
       </View>
       <Text style={styles.itemCount}>{filteredItems.length} artikelen gevonden</Text>
@@ -82,9 +87,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    marginLeft: 5,
-    fontSize: 16,
     color: Colors.black,
+    fontSize: 16,
+    fontFamily: 'Roboto-Regular',
+    marginRight: 5,
   },
   itemCount: {
     paddingHorizontal: 20,
@@ -96,6 +102,21 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: 20,
+  },
+  filterSortContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.black,
   },
 });
 
