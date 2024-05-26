@@ -21,6 +21,7 @@ const ProductListItem = ({item}: ProductListItemProps) => {
       borderRadius: 5,
       paddingRight: 10,
       position: 'relative',
+      marginBottom: 50,
     },
     heartButton: {
       position: 'absolute',
@@ -55,7 +56,7 @@ const ProductListItem = ({item}: ProductListItemProps) => {
   });
 
   return (
-    <Link href={`/home/${item.id}`} asChild>  
+    <Link href={`/home/item/${item.id}`} asChild>  
     <Pressable style={styles.itemContainer}>
       <Image source={item.image} style={styles.image} />
       <TouchableOpacity style={styles.heartButton}>

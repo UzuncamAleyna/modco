@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import clothingItems from '../../../../assets/data/clothingItems';
+import clothingItems from '../../../../../assets/data/clothingItems';
 import Colors from '@/src/constants/Colors';
 import { FlatList } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Octicons';
@@ -45,8 +45,7 @@ const Item = () => {
   };
 
   const handleViewMoreReviews = () => {
-    // Hier kun je navigatie naar beoordelingen pagina implementeren
-    console.log('Bekijk meer beoordelingen');
+    router.push(`/home/reviews/reviews?id=${id}`);
   };
 
   const limitWords = (text, wordLimit) => {
@@ -59,49 +58,48 @@ const Item = () => {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-    <ScrollView>
-      <Stack.Screen 
-        options={{ 
-          title: 'Detail: ' + id, 
-          headerShown: true,
-          headerTransparent: true,
-          headerTitle: '',
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{backgroundColor: 'rgba(255,255,255,0.7)', borderRadius:20, padding: 10, marginLeft:10, marginBottom: 10, width: 40, height: 40}}>
-              <Icon name="chevron-left" size={24} color={Colors.black} style={{marginLeft:5}}/>
-            </TouchableOpacity>
-          ),
-
-        }}
-      />
-      <View style={styles.imageContainer}>
-        <FlatList
-          data={item.images}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={handleScroll}
-          keyExtractor={(image, index) => index.toString()} 
-          renderItem={({ item }) => (
-            <Image source={item} style={styles.image} />
-          )}
+      <ScrollView>
+        <Stack.Screen 
+          options={{ 
+            title: 'Detail: ' + id, 
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: '',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()} style={{backgroundColor: 'rgba(255,255,255,0.7)', borderRadius:20, padding: 10, marginLeft:10, marginBottom: 10, width: 40, height: 40}}>
+                <Icon name="chevron-left" size={24} color={Colors.black} style={{marginLeft:5}}/>
+              </TouchableOpacity>
+            ),
+          }}
         />
-        <View style={styles.pageControl}>
-          {item.images.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.pageDot,
-                currentImageIndex === index && styles.pageDotActive
-              ]}
-            />
-          ))}
+        <View style={styles.imageContainer}>
+          <FlatList
+            data={item.images}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleScroll}
+            keyExtractor={(image, index) => index.toString()} 
+            renderItem={({ item }) => (
+              <Image source={item} style={styles.image} />
+            )}
+          />
+          <View style={styles.pageControl}>
+            {item.images.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.pageDot,
+                  currentImageIndex === index && styles.pageDotActive
+                ]}
+              />
+            ))}
+          </View>
         </View>
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemPrice}>€ {item.price}</Text>
-        <View style={styles.ratingContainer}>
+        <View style={styles.section}>
+          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={styles.itemPrice}>€ {item.price}</Text>
+          <View style={styles.ratingContainer}>
             {[...Array(Math.round(averageRating))].map((_, i) => (
               <RatingStar key={i} name="star" size={20} color={Colors.blueIris} />
             ))}
@@ -109,38 +107,38 @@ const Item = () => {
               <RatingStar key={i} name="star" size={20} color={Colors.lightGrey} />
             ))}
             <Text style={styles.reviewText}>({reviewCount})</Text>
-          <TouchableOpacity style={styles.heartButton}>
-            <Icon name="heart" size={24} color={Colors.blueIris} />
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.heartButton}>
+              <Icon name="heart" size={24} color={Colors.blueIris} />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Beschrijving</Text>
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.sectionContent}>{item.description}</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Beschrijving</Text>
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.sectionContent}>{item.description}</Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Productdetails</Text>
-        <Text style={styles.sectionContent}>Maat: Verkrijgbaar in {Array.isArray(item.size) ? item.size.join(', ') : [item.size].join(', ')}</Text>
-        <Text style={styles.sectionContent}>Materiaal: {item.material}</Text>
-        <Text style={styles.sectionContent}>Kleur: {item.color}</Text>
-        <Text style={styles.sectionContent}>Lengte: {item.length}</Text>
-      </View>
-      <View style={styles.section}>
-        <View style={styles.sellerContainer}>
-        <View style={styles.sellerInfo}>
-          <Image source={item.seller.image} style={styles.sellerImage} />
-          <Text style={styles.sellerName}>{item.seller.name}</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Productdetails</Text>
+          <Text style={styles.sectionContent}>Maat: Verkrijgbaar in {Array.isArray(item.size) ? item.size.join(', ') : [item.size].join(', ')}</Text>
+          <Text style={styles.sectionContent}>Materiaal: {item.material}</Text>
+          <Text style={styles.sectionContent}>Kleur: {item.color}</Text>
+          <Text style={styles.sectionContent}>Lengte: {item.length}</Text>
         </View>
+        <View style={styles.section}>
+          <View style={styles.sellerContainer}>
+            <View style={styles.sellerInfo}>
+              <Image source={item.seller.image} style={styles.sellerImage} />
+              <Text style={styles.sellerName}>{item.seller.name}</Text>
+            </View>
             <TouchableOpacity style={styles.followButton}>
               <Text style={styles.followButtonText}>Volgend</Text>
             </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Beoordelingen</Text>
-        {item.reviews.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Beoordelingen</Text>
+          {item.reviews.length > 0 && (
             <View style={styles.reviewContainer}>
               <View style={styles.reviewerInfo}>
                 <Text style={styles.reviewAuthor}>{item.reviews[0].author}</Text>
@@ -157,11 +155,11 @@ const Item = () => {
               <Text style={styles.reviewContent}>{limitWords(item.reviews[0].content, 20)}</Text>
             </View>
           )}
-        <TouchableOpacity style={styles.viewMoreButton} onPress={handleViewMoreReviews}>
-          <Text style={styles.viewMoreButtonText}>Bekijk meer</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <TouchableOpacity style={styles.viewMoreButton} onPress={handleViewMoreReviews}>
+            <Text style={styles.viewMoreButtonText}>Bekijk meer</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </GestureHandlerRootView>
   );
 };

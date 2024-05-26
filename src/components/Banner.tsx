@@ -1,9 +1,12 @@
-// Banner.tsx
 import React, { useState } from 'react';
 import { View, Image, FlatList, Dimensions, StyleSheet } from 'react-native';
 import Colors from '../constants/Colors';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen'; 
 
-// Example banner data
+
 const banners = [
   require('assets/images/pink-dress.jpg'),
   require('assets/images/pink-dress.jpg'),
@@ -48,10 +51,10 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   image: {
-    width: 385, // this will make the image take up the full width of the screen with a margin of 20 on each side, so the image will be centered
+    width: wp('90%'),
     height: 100, 
     borderRadius: 5,
-    marginRight: 20,
+    marginRight: 10,
   },
   pageControl: {
     flexDirection: 'row',
