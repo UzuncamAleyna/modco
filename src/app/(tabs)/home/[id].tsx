@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionContent: {
-    fontSize: 14,
+    fontSize: 16,
     color: Colors.black,
     fontFamily: 'Roboto-Regular',
   },
@@ -249,8 +249,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sellerImage: {
-    width: 50,
-    height: 50,
+    width: 70,
+    height: 70,
     borderRadius: 5,
     marginRight: 10,
   },
@@ -265,13 +265,13 @@ const styles = StyleSheet.create({
   followButton: {
     marginLeft: 'auto',
     backgroundColor: Colors.blueIris,
-    paddingVertical: 5,
+    paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 5,
   },
   followButtonText: {
     color: Colors.white,
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Roboto-Regular',
   },
   ratingContainer: {
