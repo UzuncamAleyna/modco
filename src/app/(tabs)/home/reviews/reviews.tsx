@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { useLocalSearchParams, Stack, useRouter, Link } from 'expo-router';
 import clothingItems from '../../../../../assets/data/clothingItems';
 import Colors from '@/src/constants/Colors';
 import Icon from 'react-native-vector-icons/Octicons';
@@ -51,14 +51,18 @@ const Reviews = () => {
         }}
       />
       <View style={styles.filterSortContainer}>
+      <Link href="/home/sort/sort" asChild>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Sorteren op</Text>
           <Icon name="chevron-down" size={16} color={Colors.black} />
         </TouchableOpacity>
+      </Link>
+      <Link href="/home/filter/filter" asChild>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Filter</Text>
           <Icon name="filter" size={16} color={Colors.black} />
         </TouchableOpacity>
+      </Link>
       </View>
       <Text style={styles.reviewCount}>{item.reviews.length} beoordelingen</Text>
       {item.reviews.map((review, index) => (
