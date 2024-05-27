@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { useLocalSearchParams, Stack, useRouter, Link } from 'expo-router';
 import items from '../../../../../assets/data/clothingItems';
 import Colors from '@/src/constants/Colors';
 import Icon from 'react-native-vector-icons/Octicons'; 
@@ -42,14 +42,18 @@ const SectionScreen = () => {
         }} 
       />
       <View style={styles.filterSortContainer}>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sorteren op</Text>
-          <Icon name="chevron-down" size={16} color={Colors.black} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Filter</Text>
-          <Icon name="filter" size={16} color={Colors.black} />
-        </TouchableOpacity>
+        <Link href="/home/sort/sort" asChild>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Sorteren op</Text>
+            <Icon name="chevron-down" size={16} color={Colors.black} />
+          </TouchableOpacity>
+        </Link>
+        <Link href="/home/filter/filter" asChild>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Filter</Text>
+            <Icon name="filter" size={16} color={Colors.black} />
+          </TouchableOpacity>
+        </Link>
       </View>
       <Text style={styles.itemCount}>{filteredItems.length} artikelen gevonden</Text>
       <FlatList

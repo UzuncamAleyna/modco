@@ -3,7 +3,13 @@ import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import Colors from '@/src/constants/Colors';
 
-const RadioButton = ({ selected, onPress, label }) => {
+type RadioButtonProps = {
+  selected: boolean;
+  onPress: () => void;
+  label: string;
+};
+
+const RadioButton = ({ selected, onPress, label }: RadioButtonProps) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={[styles.outerCircle, selected && styles.selectedOuterCircle]}>
