@@ -1,12 +1,20 @@
 import React from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import Colors from '@/src/constants/Colors';
+import { MaterialIcons } from '@expo/vector-icons';
 
-const SearchBar = () => {
+
+const SearchBar = ({ value, onChangeText }) => {
   return (
     <View style={styles.container}>
-      <TextInput style={styles.input} placeholder="Zoek..." />
-    </View>
+      <MaterialIcons name="search" size={24} color={Colors.lightGrey} />
+      <TextInput
+        style={styles.input}
+        placeholder="Zoek..."
+        value={value}
+        onChangeText={onChangeText}
+      />    
+      </View>
   );
 };
 
@@ -17,6 +25,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderColor: Colors.lightGrey,
     borderWidth: 0.5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
   },
   input: {
     padding: 10,

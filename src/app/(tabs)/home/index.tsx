@@ -28,7 +28,7 @@ export default function Home() {
           }, 
         }}
       />
-      <SearchBar />
+      <SearchBar value={undefined} onChangeText={undefined} />
       <View style={styles.tabContainer}>
         <Pressable
           style={[styles.tab, selectedTab === 'Dames' && styles.activeTab]}

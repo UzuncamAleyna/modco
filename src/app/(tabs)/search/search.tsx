@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import items from '../../../assets/data/clothingItems';
+import items from '../../../../assets/data/clothingItems';
 import { Text, View, ScrollView, Pressable } from 'react-native';
 import SearchBar from '@/src/components/SearchBar';
 import Colors from '@/src/constants/Colors';
 import SearchCategoryList from '@/src/components/SearchScreen/SearchCategoryList';
+import { Stack } from 'expo-router';
+
 
 export default function Search() {
   const [selectedTab, setSelectedTab] = useState('Dames');
@@ -14,8 +16,17 @@ export default function Search() {
 
   return (
     <ScrollView style={styles.container}>
+      <Stack.Screen
+        options={{ 
+          headerTitle:'Zoeken', 
+          headerTitleStyle: {
+            fontFamily: 'PPMonumentExtended-Regular',
+            fontSize: 14,
+          }, 
+        }}
+      />
       <View style={styles.searchBarContainer}>
-        <SearchBar />
+        <SearchBar value={undefined} onChangeText={undefined} />
       </View>
       <View style={styles.tabContainer}>
         <Pressable

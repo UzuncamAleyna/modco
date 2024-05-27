@@ -43,3 +43,12 @@ export type ProfileItemType = {
     name: string;
     icon: any;
 };
+
+export interface Subcategory {
+    name: string;
+  }
+  
+  export interface Category {
+    name: string;
+    subcategories?: Subcategory[];
+  }

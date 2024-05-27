@@ -78,6 +78,7 @@ export default function TabLayout() {
         options={{
           title: 'Zoeken',
           headerTitle: 'Zoeken',
+          headerShown: false,
           headerTitleStyle: {
             fontFamily: 'PPMonumentExtended-Regular',
             fontSize: 14,
