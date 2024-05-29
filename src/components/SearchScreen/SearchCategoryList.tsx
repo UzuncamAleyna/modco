@@ -81,7 +81,7 @@ const CategoryList = () => {
       router.push('/search/shops/shops');
     } else {
       router.push({
-        pathname: '/search/subcategories',
+        pathname: '/search/subcategories/subcategories',
         params: { category: category.name, subcategories: JSON.stringify(category.subcategories) },
       });
     }

@@ -1,123 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, Link } from 'expo-router';
 import Colors from '@/src/constants/Colors';
 import SearchBar from '@/src/components/SearchBar';
 import Icon from 'react-native-vector-icons/Octicons';
 import RatingStar from 'react-native-vector-icons/FontAwesome';
+import shopData from '../../../../../assets/data/shopsData';
 
-const shops = [
-  {
-    id: 1,
-    name: 'Esmée Shop',
-    image: require('../../../../../assets/images/shop.jpg'),
-    reviews: [
-      { rating: 4.5 },
-      { rating: 4.0 },
-      { rating: 5.0 },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Maud Shop',
-    image: require('../../../../../assets/images/shop.jpg'),
-    reviews: [
-      { rating: 4.0 },
-      { rating: 4.5 },
-      { rating: 4.0 },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Fleur Shop',
-    image: require('../../../../../assets/images/shop.jpg'),
-    reviews: [
-      { rating: 1 },
-      { rating: 4.5 },
-      { rating: 4.5 },
-    ],
-  },
-  {
-    id: 4,
-    name: 'Lotte Shop',
-    image: require('../../../../../assets/images/shop.jpg'),
-    reviews: [
-      { rating: 4.0 },
-      { rating: 4.0 },
-      { rating: 4.0 },
-    ],
-  },
-  {
-    id: 5,
-    name: 'Sanne Shop',
-    image: require('../../../../../assets/images/shop.jpg'),
-    reviews: [
-      { rating: 4.5 },
-      { rating: 4.5 },
-      { rating: 4.5 },
-    ],
-  },
-  {
-    id: 6,
-    name: 'Luna Shop',
-    image: require('../../../../../assets/images/shop.jpg'),
-    reviews: [
-      { rating: 4.0 },
-      { rating: 4.0 },
-      { rating: 4.0 },
-    ],
-  },
-  {
-    id: 7,
-    name: 'Femke Shop',
-    image: require('../../../../../assets/images/shop.jpg'),
-    reviews: [
-      { rating: 4.5 },
-      { rating: 4.5 },
-      { rating: 4.5 },
-    ],
-  },
-  {
-    id: 8,
-    name: 'Anouk Shop',
-    image: require('../../../../../assets/images/shop.jpg'),
-    reviews: [
-      { rating: 4.0 },
-      { rating: 4.0 },
-      { rating: 4.0 },
-    ],
-  },
-  {
-    id: 9,
-    name: 'Julia Shop',
-    image: require('../../../../../assets/images/shop.jpg'),
-    reviews: [
-      { rating: 4.5 },
-      { rating: 4.5 },
-      { rating: 4.5 },
-    ],
-  },
-];
 
 const calculateAverageRating = (reviews) => {
-  const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+  const total = reviews.reduce((sum, rating) => sum + rating.rating, 0);
   return total / reviews.length;
 };
 
 const Shops = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredShops, setFilteredShops] = useState(shops);
+  const [filteredShops, setFilteredShops] = useState(shopData);
   const router = useRouter();
 
   useEffect(() => {
     if (searchTerm) {
       setFilteredShops(
-        shops.filter(shop =>
+        shopData.filter(shop =>
           shop.name.toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
     } else {
-      setFilteredShops(shops);
+      setFilteredShops(shopData);
     }
   }, [searchTerm]);
 
@@ -160,9 +69,11 @@ const Shops = () => {
                 </Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.viewButton}>
-              <Text style={styles.viewButtonText}>Bekijk</Text>
-            </TouchableOpacity>
+            <Link href={`/search/shops/shopdetail/${item.id}`} asChild>
+              <TouchableOpacity style={styles.viewButton}>
+                <Text style={styles.viewButtonText}>Bekijk</Text>
+              </TouchableOpacity>
+            </Link>
           </View>
         )}
       />

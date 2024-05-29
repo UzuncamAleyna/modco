@@ -16,6 +16,11 @@ const SubcategoryList = () => {
             options={{
                 title: Array.isArray(category) ? category[0] : category,
                 headerShown: true,
+                headerTitleAlign: 'center',
+                headerTitleStyle: {
+                    fontFamily: 'PPMonumentExtended-Regular',
+                    fontSize: 14,
+                },
             }}
         />
         <FlatList
