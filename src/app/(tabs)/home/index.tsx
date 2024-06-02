@@ -29,9 +29,6 @@ export default function Home() {
         }}
       />
       <SearchBar value={undefined} onChangeText={undefined} />
-      <Link href={'/sign-in'} asChild>
-        <Button title="Sign in" />
-      </Link>
       <View style={styles.tabContainer}>
         <Pressable
           style={[styles.tab, selectedTab === 'Dames' && styles.activeTab]}

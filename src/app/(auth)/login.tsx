@@ -3,18 +3,19 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Octicons'; 
 import Colors from '@/src/constants/Colors';
+import { setLoggedIn } from '@/src/authState';
 import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
   } from 'react-native-responsive-screen';
 
-const SignInScreen = () => {
+const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState({ email: '', password: '' });
   const router = useRouter();
 
-  const handleSignIn = () => {
+  const handleLogin = () => {
     // Validatie logica
     if (email === '' || password === '') {
       setError({
@@ -24,6 +25,8 @@ const SignInScreen = () => {
     } else {
       // Sign-in logica
       console.log('Sign-In Succesvol');
+      setLoggedIn(true);
+      router.push('/profile');
     }
   };
 
@@ -62,7 +65,7 @@ const SignInScreen = () => {
         onChangeText={(text) => setPassword(text)}
       />
       {error.password ? <Text style={styles.errorText}>{error.password}</Text> : null}
-      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Log in</Text>
       </TouchableOpacity>
       <TouchableOpacity>
@@ -93,8 +96,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   input: {
-    width: '100%',
-    height: 40,
+    width: wp('80%'),
+    height: hp('5%'),
     marginBottom: 20,
     paddingLeft: 10,
     borderBottomColor: Colors.black,
@@ -137,4 +140,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignInScreen;
+export default LoginScreen;
