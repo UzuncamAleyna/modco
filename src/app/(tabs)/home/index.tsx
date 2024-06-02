@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, View, Text, Pressable } from 'react-native';
+import { StyleSheet, ScrollView, View, Text, Pressable, Button } from 'react-native';
 import Colors from '@/src/constants/Colors';
 import items from '../../../../assets/data/clothingItems';
 import ProductListSection from '@/src/components/ProductListSection';
@@ -8,7 +8,7 @@ import TopCategories from '@/src/components/TopCategories';
 import categories from '../../../../assets/data/itemCategories';
 import Banner from '@/src/components/Banner';
 import Fonts from '@/src/constants/Fonts';
-import { Stack } from 'expo-router';
+import { Link, Stack } from 'expo-router';
 
 
 export default function Home() {
@@ -29,6 +29,9 @@ export default function Home() {
         }}
       />
       <SearchBar value={undefined} onChangeText={undefined} />
+      <Link href={'/sign-in'} asChild>
+        <Button title="Sign in" />
+      </Link>
       <View style={styles.tabContainer}>
         <Pressable
           style={[styles.tab, selectedTab === 'Dames' && styles.activeTab]}
