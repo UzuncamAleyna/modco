@@ -10,12 +10,12 @@ import {
 import { setLoggedIn } from '@/src/authState';
 import {supabase} from '../../lib/supabase';
 
+// Error messages from Supabase translated to Dutch
 const errorMessages = {
     'Password should be at least 6 characters.': 'Wachtwoord moet minimaal 6 tekens bevatten.',
     'Unable to validate email address: invalid format': 'Kan e-mailadres niet valideren: ongeldig formaat',
     'User already registered': 'Deze email is al in gebruik',
     };
-
 
 const RegisterScreen = () => {
   const [username, setUsername] = useState('');

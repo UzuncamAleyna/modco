@@ -1,21 +1,30 @@
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Octicons'; 
 import Colors from '@/src/constants/Colors';
 import { setLoggedIn } from '@/src/authState';
+import {supabase} from '../../lib/supabase';
 import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
   } from 'react-native-responsive-screen';
 
+  // Error messages from Supabase translated to Dutch
+const errorMessages = {
+  'Invalid login credentials': 'Ongeldige inloggegevens',
+  'Unable to validate email address: invalid format': 'Kan e-mailadres niet valideren: ongeldig formaat',
+  'User already registered': 'Deze email is al in gebruik',
+  };
+
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = () => {
+  const handleLogin = async() => {
     // Validatie logica
     if (email === '' || password === '') {
       setError({
@@ -23,10 +32,25 @@ const LoginScreen = () => {
         password: password === '' ? 'Gelieve uw wachtwoord in te vullen' : '',
       });
     } else {
+      setLoading(true);
+      // Login logica met Supabase
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        // Log error message in console
+        console.error('Error signing up:', signInError.message);
+        const errorMessage = errorMessages[signInError.message] || 'Er is iets misgegaan. Probeer het opnieuw.';
+        Alert.alert('Er is iets misgegaan', errorMessage)
+      }
+    else {
       // Sign-in logica
-      console.log('Sign-In Succesvol');
       setLoggedIn(true);
       router.push('/profile');
+      setLoading(false);
+    }
     }
   };
 
