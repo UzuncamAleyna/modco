@@ -4,18 +4,18 @@ import Colors from '@/src/constants/Colors';
 import ProfileList from '@/src/components/ProfileScreen/ProfileList';
 import Icon from 'react-native-vector-icons/Octicons'; 
 import { useRouter } from 'expo-router';
-import { useAuthState } from '@/src/authState';
-
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import { useAuth } from '@/src/providers/AuthProvider';
 
 export default function Profile() {
-  const isLoggedIn = useAuthState();
+  const {session} = useAuth();
   const router = useRouter();
+  console.log(session);
 
-  if (!isLoggedIn) {
+  if (!session) {
     return (
       <View style={styles.container}>
         <Icon name="smiley" size={80} color={Colors.blueIris} style={styles.logo} />

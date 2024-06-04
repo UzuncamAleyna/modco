@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Tabs } from 'expo-router';
+import { Link, Redirect, Tabs } from 'expo-router';
 import { Pressable, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import Colors from '@/src/constants/Colors';
 import { useClientOnlyValue } from '@/src/components/useClientOnlyValue';
@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
 });
 
 export default function TabLayout() {
+
   return (
     <Tabs
       screenOptions={{

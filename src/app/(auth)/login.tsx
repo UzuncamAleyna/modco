@@ -9,6 +9,7 @@ import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
   } from 'react-native-responsive-screen';
+  import { useAuth } from '@/src/providers/AuthProvider';
 
   // Error messages from Supabase translated to Dutch
 const errorMessages = {
@@ -23,6 +24,8 @@ const LoginScreen = () => {
   const [error, setError] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { setSession }:any = useAuth();
+
 
   const handleLogin = async() => {
     // Validatie logica
@@ -34,7 +37,7 @@ const LoginScreen = () => {
     } else {
       setLoading(true);
       // Login logica met Supabase
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -47,6 +50,8 @@ const LoginScreen = () => {
       }
     else {
       // Sign-in logica
+      console.log('Registration successful', data);
+      setSession(data.session);
       setLoggedIn(true);
       router.push('/profile');
       setLoading(false);

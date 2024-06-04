@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import Fonts from '../constants/Fonts';
+import AuthProvider from '../providers/AuthProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -46,10 +47,12 @@ export default function RootLayout() {
 function RootLayoutNav() {
 
   return (
+    <AuthProvider>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       </Stack>
+    </AuthProvider>
   );
 }

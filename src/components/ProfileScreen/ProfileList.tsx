@@ -3,6 +3,9 @@ import { View, StyleSheet } from 'react-native';
 import Colors from '../../constants/Colors';
 import { SearchItemType } from '../../types';
 import ProfileListItem from './ProfileListItem';
+import { useAuth } from '../../providers/AuthProvider';
+import { supabase } from '../../lib/supabase';
+import { useRouter } from 'expo-router';
 
 const profileOptions: SearchItemType[] = [
     { name: 'Mijn Gegevens' },
@@ -16,11 +19,22 @@ const profileOptions: SearchItemType[] = [
     { name: 'Privacybeleid' },
     { name: 'Uitloggen' },
 ];
-
 const ProfileList = () => {
-    const handlePress = (option: string) => {
-        console.log('Pressed:', option);
-        // Here you can navigate to a specific screen or perform an action
+    const router = useRouter();
+    const {session} = useAuth();
+
+    const handlePress = async (option: string) => {
+        if (option === 'Uitloggen') {
+            const { error } = await supabase.auth.signOut();
+            if (!error) {
+                router.replace('/profile'); // Navigeer naar login na uitloggen
+            } else {
+                console.error('Error signing out:', error.message);
+            }
+        } else {
+            console.log('Pressed:', option);
+            // Hier kun je navigeren naar andere schermen of acties uitvoeren
+        }
     };
 
     return (
