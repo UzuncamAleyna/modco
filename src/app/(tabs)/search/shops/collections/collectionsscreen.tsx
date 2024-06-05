@@ -40,7 +40,7 @@ const CollectionsList = () => {
         data={shop.collections}
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.collectionContainer} onPress={() => router.push(`/home/shops/${id}/collections/${item.name}`)}>
+          <TouchableOpacity style={styles.collectionContainer} onPress={() => router.push(`/search/shops/${id}/collections/${item.name}`)}>
             <Text style={styles.collectionName}>{item.name}</Text>
           </TouchableOpacity>
         )}

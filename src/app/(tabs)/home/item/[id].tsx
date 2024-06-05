@@ -45,7 +45,7 @@ const Item = () => {
   };
 
   const handleViewMoreReviews = () => {
-    router.push(`/home/reviews/reviews?id=${id}`);
+    router.push(`/home/reviews/reviewsscreen?id=${id}`);
   };
 
   const limitWords = (text, wordLimit) => {

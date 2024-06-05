@@ -92,6 +92,7 @@ export default function TabLayout() {
         options={{
           title: 'Verkopen',
           headerTitle: 'Verkopen',
+          headerShown: false,
           headerTitleStyle: {
             fontFamily: 'PPMonumentExtended-Regular',
             fontSize: 14,

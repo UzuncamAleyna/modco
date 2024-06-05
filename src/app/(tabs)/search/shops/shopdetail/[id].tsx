@@ -109,7 +109,7 @@ const ShopDetail = () => {
             </View>
           )}
         />
-        <TouchableOpacity style={styles.viewMoreButton} onPress={() => router.push(`/home/shops/${id}/collections/collections`)}>
+        <TouchableOpacity style={styles.viewMoreButton} onPress={() => router.push(`/search/shops/${id}/collections/collectionsscreen`)}>
           <Text style={styles.viewMoreButtonText}>Ontdek meer</Text>
         </TouchableOpacity>
       </View>

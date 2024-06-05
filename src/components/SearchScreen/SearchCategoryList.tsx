@@ -78,10 +78,10 @@ const CategoryList = () => {
 
   const handlePress = (category: Category) => {
     if (category.name === 'Winkels') {
-      router.push('/search/shops/shops');
+      router.push('/search/shops/shopsscreen');
     } else {
       router.push({
-        pathname: '/search/subcategories/subcategories',
+        pathname: '/search/subcategories/subcategoriesscreen',
         params: { category: category.name, subcategories: JSON.stringify(category.subcategories) },
       });
     }

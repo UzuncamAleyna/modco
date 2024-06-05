@@ -42,13 +42,13 @@ const SectionScreen = () => {
         }} 
       />
       <View style={styles.filterSortContainer}>
-        <Link href="/home/sort/sort" asChild>
+        <Link href="/home/sort/sortscreen" asChild>
           <TouchableOpacity style={styles.button}>
             <Text style={styles.buttonText}>Sorteren op</Text>
             <Icon name="chevron-down" size={16} color={Colors.black} />
           </TouchableOpacity>
         </Link>
-        <Link href="/home/filter/filter" asChild>
+        <Link href="/home/filter/filterscreen" asChild>
           <TouchableOpacity style={styles.button}>
             <Text style={styles.buttonText}>Filter</Text>
             <Icon name="filter" size={16} color={Colors.black} />
