@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Octicons'; 
 import Colors from '@/src/constants/Colors';
-import { setLoggedIn } from '@/src/authState';
 import {supabase} from '../../lib/supabase';
 import {
     widthPercentageToDP as wp,
@@ -28,7 +27,7 @@ const LoginScreen = () => {
 
 
   const handleLogin = async() => {
-    // Validatie logica
+    // Validation logic
     if (email === '' || password === '') {
       setError({
         email: email === '' ? 'Gelieve uw e-mail in te vullen' : '',
@@ -36,7 +35,7 @@ const LoginScreen = () => {
       });
     } else {
       setLoading(true);
-      // Login logica met Supabase
+      // Login logic with Supabase
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -49,10 +48,9 @@ const LoginScreen = () => {
         Alert.alert('Er is iets misgegaan', errorMessage)
       }
     else {
-      // Sign-in logica
+      // Login successful
       console.log('Registration successful', data);
       setSession(data.session);
-      setLoggedIn(true);
       router.push('/profile');
       setLoading(false);
     }

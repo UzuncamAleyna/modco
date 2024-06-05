@@ -4,18 +4,22 @@ import { Session } from '@supabase/supabase-js';
 
 const AuthContext = createContext({
     session: null,
+    profile: null,
 });
 
 export default function AuthProvider({ children }) {
     const [session, setSession] = useState<Session | null>(null);
+    const [profile, setProfile] = useState(null);
 
     useEffect(() => {
         const getSession = async () => {
-            const {data, error} = await supabase.auth.getSession();
-            if (data) {
-                setSession(data.session);
-            } else if (error) {
-                console.error('Error getting session:', error.message);
+            const {data: {session}} = await supabase.auth.getSession();
+            setSession(session);
+
+            if (session) {
+                //fetch profile
+                const {data} = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+                    setProfile(data || null);
             }
     };
     getSession();
@@ -24,7 +28,8 @@ export default function AuthProvider({ children }) {
     });
     }
     , []);
-    return <AuthContext.Provider value={{session}}>{children}</AuthContext.Provider>;
+    console.log(profile);
+    return <AuthContext.Provider value={{session, profile}}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => useContext(AuthContext);

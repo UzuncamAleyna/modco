@@ -10,12 +10,12 @@ import { useRouter } from 'expo-router';
 const profileOptions: SearchItemType[] = [
     { name: 'Mijn Gegevens' },
     { name: 'Mijn Bestellingen' },
-    { name: 'Mijn Retouren' },
-    { name: 'Mijn Shop' },
+    // { name: 'Mijn Retouren' },
+    { name: 'Mijn Shop' }, //deze kan enkel zichtbaar zijn als de gebruiker een shop heeft
     { name: 'Wachtwoord Wijzigen' },
     { name: 'Volgend' },
     { name: 'Over MODCO' },
-    { name: 'MODCO Premium' },
+    // { name: 'MODCO Premium' },
     { name: 'Privacybeleid' },
     { name: 'Uitloggen' },
 ];
@@ -27,13 +27,12 @@ const ProfileList = () => {
         if (option === 'Uitloggen') {
             const { error } = await supabase.auth.signOut();
             if (!error) {
-                router.replace('/profile'); // Navigeer naar login na uitloggen
+                router.replace('/profile');
             } else {
                 console.error('Error signing out:', error.message);
             }
         } else {
             console.log('Pressed:', option);
-            // Hier kun je navigeren naar andere schermen of acties uitvoeren
         }
     };
 

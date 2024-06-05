@@ -28,7 +28,7 @@ const RegisterScreen = () => {
   const { setSession }:any = useAuth();
 
   const handleRegister = async () => {
-    // Validatie logica
+    // Validation logic
     if (username === '' || email === '' || password === '' || confirmPassword === '') {
       setError({
         username: username === '' ? 'Gelieve uw gebruikersnaam in te vullen' : '',
@@ -40,7 +40,7 @@ const RegisterScreen = () => {
       setError({ ...error, confirmPassword: 'Wachtwoorden komen niet overeen' });
     } else {
       setLoading(true);
-      // Register logica met Supabase
+      // Register logic with Supabase
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
