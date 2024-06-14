@@ -24,12 +24,13 @@ export default function Sell() {
               fontFamily: 'PPMonumentExtended-Regular',
               fontSize: 14,
             }, 
+            headerLeft: () => {return null}
           }}
         />
       <Icon name="smiley" size={80} color={Colors.blueIris} style={styles.logo} />
       <Text style={styles.title}>U bent nog niet ingelogd...</Text>
       <Text style={styles.description}>
-      Om een winkel te starten, moet u eerst inloggen of een account aanmaken.
+        Om een winkel te starten, moet u eerst inloggen of een account aanmaken.
       </Text>
       <TouchableOpacity style={styles.button} onPress={() => router.push('/register')}>
         <Text style={styles.buttonText}>Maak een account</Text>
@@ -56,6 +57,7 @@ export default function Sell() {
               fontFamily: 'PPMonumentExtended-Regular',
               fontSize: 14,
             }, 
+            headerLeft: () => {return null}
           }}
         />
         <SellList />
@@ -72,6 +74,7 @@ export default function Sell() {
             fontFamily: 'PPMonumentExtended-Regular',
             fontSize: 14,
           }, 
+          headerLeft: () => {return null}
         }}
       />
       <Text style={styles.title}>Bent u een ontwerper? Start uw winkel nu!</Text>
@@ -145,5 +148,8 @@ const styles = StyleSheet.create({
   },
   link: {
     color: Colors.blueIris,
+  },
+  backButton: {
+    marginLeft: 10,
   },
 });

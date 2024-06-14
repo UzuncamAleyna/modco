@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, View, Text, Pressable, Button } from 'react-native';
 import Colors from '@/src/constants/Colors';
 import items from '../../../../assets/data/clothingItems';
@@ -9,6 +9,7 @@ import categories from '../../../../assets/data/itemCategories';
 import Banner from '@/src/components/Banner';
 import Fonts from '@/src/constants/Fonts';
 import { Link, Stack } from 'expo-router';
+import { supabase } from '@/src/lib/supabase';
 
 
 export default function Home() {

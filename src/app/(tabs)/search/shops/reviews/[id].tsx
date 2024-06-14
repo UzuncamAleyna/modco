@@ -4,7 +4,7 @@ import { Stack, useRouter, useLocalSearchParams, Link } from 'expo-router';
 import Colors from '@/src/constants/Colors';
 import Icon from 'react-native-vector-icons/Octicons';
 import RatingStar from 'react-native-vector-icons/FontAwesome';
-import shopData from '../../../../../../assets/data/shopsData';
+import { supabase } from '@/src/lib/supabase';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -12,26 +12,110 @@ import {
 
 const ShopReviews = () => {
   const { id } = useLocalSearchParams();
-  const shop = shopData.find(shop => shop.id.toString() === id);
+  const [reviews, setReviews] = useState([]);
+  const [profiles, setProfiles] = useState({});
+
   const router = useRouter();
-  const [filteredItems, setFilteredItems] = useState([]);
 
   useEffect(() => {
-    if (shop) {
-      setFilteredItems(shop.reviews);
-    }
-  }, [shop]);
+    fetchReviews();
+  }, [id]);
 
-  if (!shop) {
-    console.log('Reviews not found for ID:', id);
-    return (
-      <View>
-        <Text>Beoordelingen niet gevonden</Text>
+  const fetchReviews = async () => {
+    try {
+      const { data: reviews, error: reviewsError } = await supabase
+        .from('reviews')
+        .select(`
+          id,
+          user_id,
+          shop_id,
+          fashion_item_id,
+          rating,
+          fit,
+          comment,
+          created_at,
+          fashion_items (
+            title,
+            fashion_item_photos (url)
+          )
+        `)
+        .eq('shop_id', id);
+  
+      if (reviewsError) throw reviewsError;
+  
+      // Fetch profiles
+      const userIds = reviews.map(review => review.user_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+  
+      if (profilesError) throw profilesError;
+  
+      // Map profiles to reviews
+      const reviewsWithProfiles = reviews.map(review => {
+        const profile = profiles.find(profile => profile.id === review.user_id);
+        return {
+          ...review,
+          full_name: profile ? profile.full_name : 'Unknown'
+        };
+      });
+  
+      setReviews(reviewsWithProfiles);
+    } catch (error) {
+      console.error('Error fetching reviews or profiles:', error.message);
+    }
+  };
+
+  const fetchProfiles = async (userIds) => {
+    try {
+      const { data: profilesData, error } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+
+      if (error) throw error;
+
+      const profilesMap = profilesData.reduce((acc, profile) => {
+        acc[profile.id] = profile.full_name;
+        return acc;
+      }, {});
+
+      setProfiles(profilesMap);
+    } catch (error) {
+      console.error('Error fetching profiles:', error.message);
+    }
+  };
+
+  const renderReviewItem = ({ item }) => (
+    <View style={styles.reviewContainer}>
+      <View style={styles.reviewerInfo}>
+        {item.fashion_items.fashion_item_photos.length > 0 && (
+          <Image
+            source={{ uri: item.fashion_items.fashion_item_photos[0].url }}
+            style={styles.reviewImage}
+          />
+        )}
+        <View style={styles.itemReview}>
+          <View style={styles.reviewerNameDate}>
+            <Text style={styles.reviewAuthor}>{item.full_name}</Text>
+            <Text style={styles.reviewDate}>{new Date(item.created_at).toLocaleDateString()}</Text>
+          </View>
+          <View style={styles.reviewStars}>
+            {[...Array(item.rating)].map((_, i) => (
+              <RatingStar key={i} name="star" size={16} color={Colors.blueIris} />
+            ))}
+            {[...Array(5 - item.rating)].map((_, i) => (
+              <RatingStar key={i} name="star" size={16} color={Colors.lightGrey} />
+            ))}
+          </View>
+          <Text style={styles.itemInfo}>{item.fashion_items.title}</Text>
+          <Text style={styles.itemInfo}>{item.fit}</Text>
+        </View>
       </View>
-    );
-  } else {
-    console.log('Reviews found:', id);
-  }
+      <Text style={styles.reviewContent}>{item.comment}</Text>
+    </View>
+  );
 
   return (
     <ScrollView style={styles.container}>
@@ -51,48 +135,25 @@ const ShopReviews = () => {
           ),
         }}
       />
-      <View style={styles.filterSortContainer}>
-      <Link href="/home/sort/sort" asChild>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sorteren op</Text>
-          <Icon name="chevron-down" size={16} color={Colors.black} />
-        </TouchableOpacity>
-      </Link>
-      <Link href="/home/filter/filter" asChild>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Filter</Text>
-          <Icon name="filter" size={16} color={Colors.black} />
-        </TouchableOpacity>
-      </Link>
-      </View>
-      <Text style={styles.itemCount}>{filteredItems.length} artikelen gevonden</Text>
+      {/* <View style={styles.filterSortContainer}>
+        <Link href="/home/sort/sort" asChild>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Sorteren op</Text>
+            <Icon name="chevron-down" size={16} color={Colors.black} />
+          </TouchableOpacity>
+        </Link>
+        <Link href="/home/filter/filter" asChild>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Filter</Text>
+            <Icon name="filter" size={16} color={Colors.black} />
+          </TouchableOpacity>
+        </Link>
+      </View> */}
+      <Text style={styles.itemCount}>{reviews.length} beoordelingen gevonden</Text>
       <FlatList
-        data={shop.reviews}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.reviewContainer}>
-            <View style={styles.reviewerInfo}>
-              <Image source={item.itemImage} style={styles.reviewImage} />
-              <View style={styles.itemReview}>
-                <View style={styles.reviewerNameDate}>
-                  <Text style={styles.reviewAuthor}>{item.author}</Text>
-                  <Text style={styles.reviewDate}>{item.date}</Text>
-                </View>
-                <View style={styles.reviewStars}>
-                  {[...Array(item.rating)].map((_, i) => (
-                    <RatingStar key={i} name="star" size={16} color={Colors.blueIris} />
-                  ))}
-                  {[...Array(5 - item.rating)].map((_, i) => (
-                    <RatingStar key={i} name="star" size={16} color={Colors.lightGrey} />
-                  ))}
-                </View>
-                <Text style={styles.itemInfo}>{item.name}</Text>
-                <Text style={styles.itemInfo}>{item.fitting}</Text>
-              </View>
-            </View>
-            <Text style={styles.reviewContent}>{item.content}</Text>
-          </View>
-        )}
+        data={reviews}
+        keyExtractor={(item) => item.id}
+        renderItem={renderReviewItem}
       />
     </ScrollView>
   );
@@ -118,7 +179,7 @@ const styles = StyleSheet.create({
   },
   reviewImage: {
     width: wp('20%'),
-    height: hp('13%'),
+    height: hp('14%'),
     borderRadius: 5,
     marginRight: 10,
     resizeMode: 'cover',
@@ -181,7 +242,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.black,
     textAlign: 'center',
-    fontFamily: 'Roboto-Regular', 
+    fontFamily: 'Roboto-Regular',
   },
 });
 

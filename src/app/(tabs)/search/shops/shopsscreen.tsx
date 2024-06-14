@@ -5,8 +5,7 @@ import Colors from '@/src/constants/Colors';
 import SearchBar from '@/src/components/SearchBar';
 import Icon from 'react-native-vector-icons/Octicons';
 import RatingStar from 'react-native-vector-icons/FontAwesome';
-import shopData from '../../../../../assets/data/shopsData';
-
+import { supabase } from '@/src/lib/supabase';
 
 const calculateAverageRating = (reviews) => {
   const total = reviews.reduce((sum, rating) => sum + rating.rating, 0);
@@ -15,18 +14,52 @@ const calculateAverageRating = (reviews) => {
 
 const Shops = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredShops, setFilteredShops] = useState(shopData);
+  const [filteredShops, setFilteredShops] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
+    fetchShops();
+  }, []);
+
+  const fetchShops = async () => {
+    console.log('Fetching shops from the database...');
+    const { data: shops, error } = await supabase
+      .from('shops')
+      .select(`
+        id,
+        name,
+        email,
+        description,
+        image,
+        fashion_items (
+          id,
+          reviews (rating)
+        )
+      `);
+
+    if (error) {
+      console.error('Error fetching shops:', error);
+    } else {
+      console.log('Fetched Shops:', shops);
+      const shopsWithReviews = shops.map(shop => {
+        const allReviews = shop.fashion_items.flatMap(item => item.reviews);
+        const averageRating = allReviews.length ? calculateAverageRating(allReviews) : 0;
+        return { ...shop, reviews: allReviews, averageRating };
+      });
+      setFilteredShops(shopsWithReviews);
+    }
+  };
+
+  useEffect(() => {
+    console.log('Search term changed:', searchTerm);
     if (searchTerm) {
       setFilteredShops(
-        shopData.filter(shop =>
+        filteredShops.filter(shop =>
           shop.name.toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
     } else {
-      setFilteredShops(shopData);
+      fetchShops();
     }
   }, [searchTerm]);
 
@@ -54,14 +87,18 @@ const Shops = () => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.shopContainer}>
-            <Image source={item.image} style={styles.shopImage} />
+            {item.image ? (
+              <Image source={{ uri: item.image }} style={styles.shopImage} />
+            ) : (
+              <Text>No Image</Text>
+            )}
             <View style={styles.shopInfo}>
               <Text style={styles.shopName}>{item.name}</Text>
               <View style={styles.shopReviews}>
-                {[...Array(Math.floor(calculateAverageRating(item.reviews)))].map((_, i) => (
+                {[...Array(Math.floor(item.averageRating))].map((_, i) => (
                   <RatingStar key={i} name="star" size={20} color={Colors.blueIris} />
                 ))}
-                {[...Array(5 - Math.floor(calculateAverageRating(item.reviews)))].map((_, i) => (
+                {[...Array(5 - Math.floor(item.averageRating))].map((_, i) => (
                   <RatingStar key={i} name="star" size={20} color={Colors.lightGrey} />
                 ))}
                 <Text style={styles.shopReviewText}>

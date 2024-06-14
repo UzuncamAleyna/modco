@@ -1,36 +1,155 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Pressable, Alert } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams, Link } from 'expo-router';
 import Colors from '@/src/constants/Colors';
 import Icon from 'react-native-vector-icons/Octicons';
-import shopData from '../../../../../../assets/data/shopsData';
 import RatingStar from 'react-native-vector-icons/FontAwesome';
+import { supabase } from '@/src/lib/supabase';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import { useAuth } from '@/src/providers/AuthProvider';
 
 const ShopDetail = () => {
   const { id } = useLocalSearchParams();
-  const shop = shopData.find(shop => shop.id.toString() === id);
+  const [shop, setShop] = useState(null);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const router = useRouter();
+  const { session } = useAuth();
+
+
+  useEffect(() => {
+    const fetchShopDetails = async () => {
+      const { data, error } = await supabase
+        .from('shops')
+        .select(`
+          id,
+          name,
+          email,
+          description,
+          image,
+          collections (
+            id,
+            name,
+            fashion_items (
+              id,
+              title,
+              fashion_item_photos (url),
+              reviews (
+                rating
+              )
+            )
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching shop details:', error);
+      } else {
+        setShop(data);
+        fetchFollowersCount(data.id);
+        setIsFollowing(data.id);
+        if (session) checkIfFollowing(data.id);
+      }
+    };
+    fetchShopDetails();
+  }, [id, session]);
+
+  const fetchFollowersCount = async (shopId) => {
+    const { count, error } = await supabase
+      .from('followers')
+      .select('*', { count: 'exact' })
+      .eq('shop_id', shopId);
+
+    if (error) {
+      console.error('Error fetching followers count:', error);
+    } else {
+      setFollowersCount(count);
+    }
+  };
+
+  const checkIfFollowing = async (shopId) => {
+    const { data, error } = await supabase
+      .from('followers')
+      .select('*')
+      .eq('shop_id', shopId)
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error checking follow status:', error);
+    } else {
+      setIsFollowing(!!data);
+    }
+  };
+
+  const handleFollow = async () => {
+    if (!session) {
+      Alert.alert(
+        'Niet ingelogd',
+        'Je moet inloggen om deze shop te kunnen volgen.',
+        [
+          {
+            text: 'Annuleer',
+            style: 'cancel',
+          },
+          {
+            text: 'Inloggen',
+            onPress: () => router.push('/login'),
+          },
+        ],
+        { cancelable: false }
+      );
+      return;
+    }
+
+    if (isFollowing) {
+      const { error } = await supabase
+        .from('followers')
+        .delete()
+        .eq('shop_id', shop.id)
+        .eq('user_id', session.user.id);
+
+      if (error) {
+        console.error('Error unfollowing shop:', error);
+      } else {
+        setIsFollowing(false);
+        setFollowersCount(followersCount - 1);
+      }
+    } else {
+      const { error } = await supabase
+        .from('followers')
+        .insert({ shop_id: shop.id, user_id: session.user.id });
+
+      if (error) {
+        console.error('Error following shop:', error);
+      } else {
+        setIsFollowing(true);
+        setFollowersCount(followersCount + 1);
+      }
+    }
+  };
+
+  const calculateAverageRating = (reviews) => {
+    if (reviews.length === 0) return 0;
+    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return parseFloat((total / reviews.length).toFixed(1));
+  };
 
   if (!shop) {
-    console.log('Shop not found for ID:', id);
     return (
-      <View>
+      <View style={styles.container}>
         <Text>Shop niet gevonden</Text>
       </View>
     );
-  } else {
-    console.log('Shop found:', id);
   }
 
-  const calculateAverageRating = (reviews) => {
-    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
-    return (total / reviews.length).toFixed(1);
-  };
-
-  const router = useRouter();
+  const allReviews = shop.collections.flatMap(collection => collection.fashion_items.flatMap(item => item.reviews));
+  const averageRating = calculateAverageRating(allReviews);
+  const reviewCount = allReviews.length;
 
   return (
     <ScrollView style={styles.container}>
@@ -51,26 +170,32 @@ const ShopDetail = () => {
         }}
       />
       <View style={styles.shopImageContainer}>
-        <Image source={shop.image} style={styles.shopImage} />
-        <TouchableOpacity style={styles.followButton}>
-          <Text style={styles.followButtonText}>Volgen</Text>
+        <Image source={{ uri: shop.image }} style={styles.shopImage} />
+        <TouchableOpacity style={styles.followButton} onPress={handleFollow}>
+          <Text style={styles.followButtonText}>{isFollowing ? 'Ontvolgen' : 'Volgen'}</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.shopInfoContainer}>
         <Link href={`/search/shops/reviews/${id}`} asChild>
-        <Pressable style={styles.ratingContainer}>
-          {[...Array(Math.floor(parseInt(calculateAverageRating(shop.reviews))))].map((_, i) => (
-            <RatingStar key={i} name="star" size={20} color={Colors.blueIris} />
-          ))}
-          {[...Array(5 - Math.floor(parseInt(calculateAverageRating(shop.reviews))))].map((_, i) => (
-            <RatingStar key={i} name="star" size={20} color={Colors.lightGrey} />
-          ))}
-          <Text style={styles.shopReviews}>
-            {calculateAverageRating(shop.reviews)} ({shop.reviews.length})
-          </Text>
-        </Pressable>
+          <Pressable style={styles.ratingContainer}>
+            {reviewCount > 0 ? (
+              <>
+                {[...Array(Math.floor(averageRating))].map((_, i) => (
+                  <RatingStar key={i} name="star" size={20} color={Colors.blueIris} />
+                ))}
+                {[...Array(5 - Math.floor(averageRating))].map((_, i) => (
+                  <RatingStar key={i} name="star" size={20} color={Colors.lightGrey} />
+                ))}
+                <Text style={styles.shopReviews}>
+                  {averageRating} ({reviewCount})
+                </Text>
+              </>
+            ) : (
+              <Text style={styles.shopReviews}>Geen beoordelingen</Text>
+            )}
+          </Pressable>
         </Link>
-        <Text style={styles.shopFollowers}>{shop.followers} volgers</Text>
+        <Text style={styles.shopFollowers}>{followersCount} volgers</Text>
       </View>
       <View style={styles.shopDescriptionContainer}>
         <Text style={styles.sectionTitle}>Over {shop.name}</Text>
@@ -78,38 +203,20 @@ const ShopDetail = () => {
       </View>
       <View style={styles.shopCollectionsContainer}>
         <Text style={styles.sectionTitle}>Collecties</Text>
-        <FlatList
-          data={shop.collections}
-          keyExtractor={(item) => item.name}
-          numColumns={2}
-          renderItem={({ item }) => (
-            <View style={styles.collectionContainer}>
-              <View>
-              <FlatList
-                data={item.items.slice(0, 4)} // Show first 4 items only
-                numColumns={2}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                  <Image source={item.image} style={styles.collectionImage} />
-                )}
-              />
-              <Text style={styles.collectionName}>{item.name}</Text>
-              </View>
-              <View>
-              <FlatList
-                data={item.items.slice(0, 4)} // Show first 4 items only
-                numColumns={2}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                  <Image source={item.image} style={styles.collectionImage} />
-                )}
-              />
-              <Text style={styles.collectionName}>{item.name}</Text>
-              </View>
+        <View style={styles.collectionsRow}>
+          {shop.collections.slice(0, 2).map(collection => (
+            <View key={collection.id} style={styles.collectionContainer}>
+              <Text style={styles.collectionName}>{collection.name}</Text>
+              {collection.fashion_items[0] && collection.fashion_items[0].fashion_item_photos[0] && (
+                <Image
+                  source={{ uri: collection.fashion_items[0].fashion_item_photos[0].url }}
+                  style={styles.collectionImage}
+                />
+              )}
             </View>
-          )}
-        />
-        <TouchableOpacity style={styles.viewMoreButton} onPress={() => router.push(`/search/shops/${id}/collections/collectionsscreen`)}>
+          ))}
+        </View>
+        <TouchableOpacity style={styles.viewMoreButton} onPress={() => router.push(`/search/shops/collections/collectionsscreen?shopId=${id}`)}>
           <Text style={styles.viewMoreButtonText}>Ontdek meer</Text>
         </TouchableOpacity>
       </View>
@@ -119,8 +226,8 @@ const ShopDetail = () => {
         <TouchableOpacity
           style={styles.contactButton}
           onPress={() => {
-            // Open email client with pre-filled email address
-            router.push(`mailto:${shop.contactEmail}`);
+            // Open email client
+            router.push(`mailto:${shop.email}`);
           }}
         >
           <Text style={styles.contactButtonText}>Contacteer</Text>
@@ -200,18 +307,18 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: Colors.lightGrey,
+  },
+  collectionsRow: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   collectionContainer: {
-    marginBottom: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flex: 1,
+    width: '48%',
   },
   collectionImage: {
-    width: wp('20%'),
-    height: wp('20%'),
-    margin: wp('0.5%'),
+    width: '100%',
+    height: wp('40%'),
+    marginBottom: wp('0.5%'),
     borderRadius: 5,
   },
   collectionName: {

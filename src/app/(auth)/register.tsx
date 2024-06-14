@@ -7,7 +7,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {supabase} from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
 import { useAuth } from '@/src/providers/AuthProvider';
 
 // Error messages from Supabase translated to Dutch
@@ -15,23 +15,24 @@ const errorMessages = {
     'Password should be at least 6 characters.': 'Wachtwoord moet minimaal 6 tekens bevatten.',
     'Unable to validate email address: invalid format': 'Kan e-mailadres niet valideren: ongeldig formaat',
     'User already registered': 'Deze email is al in gebruik',
-    };
+};
 
 const RegisterScreen = () => {
   const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState({ username: '', email: '', password: '', confirmPassword: '' });
+  const [error, setError] = useState({ username: '', fullName: '', email: '', password: '', confirmPassword: '' });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { setSession }:any = useAuth();
+  const { setSession } = useAuth();
 
   const handleRegister = async () => {
-    // Validation logic
-    if (username === '' || email === '' || password === '' || confirmPassword === '') {
+    if (username === '' || fullName === '' || email === '' || password === '' || confirmPassword === '') {
       setError({
         username: username === '' ? 'Gelieve uw gebruikersnaam in te vullen' : '',
+        fullName: fullName === '' ? 'Gelieve uw voornaam en naam in te vullen' : '',
         email: email === '' ? 'Gelieve uw e-mail in te vullen' : '',
         password: password === '' ? 'Gelieve uw wachtwoord in te vullen' : '',
         confirmPassword: confirmPassword === '' ? 'Gelieve uw wachtwoord te bevestigen' : '',
@@ -40,22 +41,64 @@ const RegisterScreen = () => {
       setError({ ...error, confirmPassword: 'Wachtwoorden komen niet overeen' });
     } else {
       setLoading(true);
-      // Register logic with Supabase
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      try {
+        // Register the user
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
 
-      if (signUpError) {
-        // Log error message in console
-        console.error('Error signing up:', signUpError.message);
-        const errorMessage = errorMessages[signUpError.message] || 'Er is iets misgegaan. Probeer het opnieuw.';
-        Alert.alert('Er is iets misgegaan', errorMessage)
-      } else {
-        // Registered successfully
-        console.log('Registration successful', data);
-        setSession(data.session);
-        router.push('/profile');
+        if (signUpError) {
+          console.error('Error signing up:', signUpError.message);
+          const errorMessage = errorMessages[signUpError.message] || 'Er is iets misgegaan. Probeer het opnieuw.';
+          Alert.alert('Er is iets misgegaan', errorMessage);
+        } else {
+          // Check if profile exists
+          const user = signUpData.user;
+          const { data: profileData, error: profileFetchError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+          if (profileFetchError && profileFetchError.code !== 'PGRST116') {
+            console.error('Error fetching profile:', profileFetchError.message);
+            Alert.alert('Er is iets misgegaan', 'Kon profiel niet ophalen. Probeer het opnieuw.');
+          } else if (profileData) {
+            // Profile exists, update it
+            const { error: profileUpdateError } = await supabase
+              .from('profiles')
+              .update({ username, full_name: fullName })
+              .eq('id', user.id);
+
+            if (profileUpdateError) {
+              console.error('Error updating profile:', profileUpdateError.message);
+              Alert.alert('Er is iets misgegaan', 'Kon profiel niet bijwerken. Probeer het opnieuw.');
+            } else {
+              console.log('Profile updated successfully', profileData);
+              setSession(signUpData.session);
+              router.push('/profile/profilescreen');
+            }
+          } else {
+            // Profile does not exist, insert new profile
+            const { error: profileInsertError } = await supabase
+              .from('profiles')
+              .insert([{ id: user.id, username, full_name: fullName }]);
+
+            if (profileInsertError) {
+              console.error('Error inserting profile:', profileInsertError.message);
+              Alert.alert('Er is iets misgegaan', 'Kon profiel niet aanmaken. Probeer het opnieuw.');
+            } else {
+              console.log('Registration successful', signUpData);
+              setSession(signUpData.session);
+              router.push('/profile/profilescreen');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error.message);
+        Alert.alert('Er is iets misgegaan. Probeer het opnieuw.');
+      } finally {
         setLoading(false);
       }
     }
@@ -88,6 +131,14 @@ const RegisterScreen = () => {
         onChangeText={(text) => setUsername(text)}
       />
       {error.username ? <Text style={styles.errorText}>{error.username}</Text> : null}
+
+      <Text style={styles.label}>Voornaam en Naam *</Text>
+      <TextInput
+        style={[styles.input, error.fullName && styles.inputError]}
+        value={fullName}
+        onChangeText={(text) => setFullName(text)}
+      />
+      {error.fullName ? <Text style={styles.errorText}>{error.fullName}</Text> : null}
       
       <Text style={styles.label}>Email *</Text>
       <TextInput

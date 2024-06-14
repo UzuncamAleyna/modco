@@ -51,7 +51,7 @@ const LoginScreen = () => {
       // Login successful
       console.log('Registration successful', data);
       setSession(data.session);
-      router.push('/profile');
+      router.push('/profile/profilescreen');
       setLoading(false);
     }
     }

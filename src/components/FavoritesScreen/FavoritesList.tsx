@@ -1,63 +1,90 @@
 import React from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import FavoritesListItem from './FavoritesListItem';
+import { View, StyleSheet, FlatList, Alert } from 'react-native';
 import Colors from '@/src/constants/Colors';
-const PinkDress = require('../../../assets/images/pink-dress.jpg');
+import FavoritesListItem from './FavoritesListItem'; 
+import { supabase } from '@/src/lib/supabase';  
+import { useStripe } from '@stripe/stripe-react-native';
+import axios from 'axios';
 
+const FavoritesList = ({ favorites, refreshFavorites }) => {
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
-const favoriteItems = [
-    {
-        id: '1',
-        name: 'Product 1',
-        sizes: ['XS', 'S', 'M', 'L'],
-        price: '€ 22',
-        imageUrl: PinkDress,
-    },
-    {
-        id: '2',
-        name: 'Product 2',
-        sizes: ['XS', 'S', 'M', 'L'],
-        price: '€ 22',
-        imageUrl: PinkDress,
-    },
-];
+  const handleRemovePress = async (id) => {
+    const { error } = await supabase
+      .from('favorites')
+      .delete()
+      .eq('id', id);
 
-const FavoritesList = () => {
-    const handleBuyPress = (id: string) => {
-        console.log(`Buy pressed for item ${id}`);
-        // Voeg hier de koopactie toe
-    };
+    if (error) {
+      console.error('Error removing favorite:', error.message);
+      alert('Er is iets misgegaan bij het verwijderen van de favoriet.');
+    } else {
+      refreshFavorites(); // Refresh the favorites list
+      alert('Favoriet verwijderd.');
+    }
+  };
 
-    const handleClosePress = (id: string) => {
-        console.log(`Close pressed for item ${id}`);
-        // Wanneer ik sluit, moet de favoriet worden verwijderd
-        
-    };
+  const handleBuyPress = async (clientSecret, itemId) => {
+    const { error } = await initPaymentSheet({
+      paymentIntentClientSecret: clientSecret,
+      merchantDisplayName: 'MODCO',
+      returnURL: 'myapp://home',
+    });
 
-    return (
-        <View style={styles.container}>
-            <FlatList
-                data={favoriteItems}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <FavoritesListItem
-                        name={item.name}
-                        sizes={item.sizes}
-                        price={item.price}
-                        imageUrl={item.imageUrl}
-                        onBuyPress={() => handleBuyPress(item.id)}
-                        onClosePress={() => handleClosePress(item.id)}
-                    />
-                )}
-            />
-        </View>
-    );
+    if (!error) {
+      const { error: presentError } = await presentPaymentSheet();
+      if (presentError) {
+        Alert.alert('Error', 'Er is iets misgegaan bij het betalen.');
+      } else {
+        Alert.alert('Success', 'Betaling geslaagd');
+        handleRemovePress(itemId);
+      }
+    } else {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+  return (
+    <FlatList style={styles.container}
+      data={favorites}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => {
+        const firstPhoto = item.fashion_items.fashion_item_photos.length 
+          ? item.fashion_items.fashion_item_photos[0].url 
+          : null;
+
+        return (
+          <FavoritesListItem
+            fashionItemId={item.fashion_items.id} 
+            name={item.fashion_items.title}
+            sizes={item.fashion_items.sizes || []}
+            price={item.fashion_items.price}
+            imageUrl={{ uri: firstPhoto }} 
+            onBuyPress={async (selectedSize) => {
+             
+              const response = await axios.post('http://192.168.129.6:3000/create-payment-intent', {
+                amount: item.fashion_items.price, 
+              });
+
+              if (response.data.clientSecret) {
+                handleBuyPress(response.data.clientSecret, item.id);
+              } else {
+                Alert.alert('Error', 'Er is iets misgegaan bij het verkrijgen van de betalingsinformatie.');
+              }
+            }}
+            onClosePress={() => handleRemovePress(item.id)}
+          />
+        );
+      }}
+    />
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: Colors.white,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.white,
+  },
 });
 
 export default FavoritesList;

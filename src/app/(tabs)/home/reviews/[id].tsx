@@ -1,77 +1,111 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, Stack, useRouter, Link } from 'expo-router';
-import clothingItems from '../../../../../assets/data/clothingItems';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import Colors from '@/src/constants/Colors';
 import Icon from 'react-native-vector-icons/Octicons';
 import RatingStar from 'react-native-vector-icons/FontAwesome';
+import { supabase } from '@/src/lib/supabase';
 
 const Reviews = () => {
   const { id } = useLocalSearchParams();
-  const item = clothingItems.find(item => item.id.toString() === id);
-  const [averageRating, setAverageRating] = useState(0);
-  const [reviewCount, setReviewCount] = useState(0);
   const router = useRouter();
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [profiles, setProfiles] = useState({});
 
   useEffect(() => {
-    if (item && item.reviews.length > 0) {
-      const totalRating = item.reviews.reduce((sum, review) => sum + review.rating, 0);
-      const average = totalRating / item.reviews.length;
-      setAverageRating(average);
-      setReviewCount(item.reviews.length);
-    }
-  }, [item]);
+    const fetchReviews = async () => {
+      const { data: reviewsData, error: reviewsError } = await supabase
+        .from('reviews')
+        .select(`
+          id,
+          rating,
+          comment,
+          fit,
+          user_id,
+          created_at,
+          fashion_items (title, fashion_item_photos (url))
+        `)
+        .eq('fashion_item_id', id);
 
-  if (!item) {
-    return (
-      <View>
-        <Stack.Screen options={{ title: 'Detail: ' + id, headerShown: false }} />
-        <Text>Mode-artikel niet gevonden</Text>
-      </View>
-    );
+      if (reviewsError) {
+        console.error('Error fetching reviews:', reviewsError.message);
+        setLoading(false);
+        return;
+      }
+
+      const userIds = reviewsData.map(review => review.user_id);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError.message);
+        setLoading(false);
+        return;
+      }
+
+      const profilesMap = profilesData.reduce((acc, profile) => {
+        acc[profile.id] = profile.full_name;
+        return acc;
+      }, {});
+
+      setReviews(reviewsData);
+      setProfiles(profilesMap);
+      setLoading(false);
+    };
+
+    fetchReviews();
+  }, [id]);
+
+  if (loading) {
+    return <Text>Aan het laden...</Text>;
+  }
+
+  if (reviews.length === 0) {
+    return <Text>Geen beoordelingen gevonden</Text>;
   }
 
   return (
     <ScrollView style={styles.container}>
-      <Stack.Screen 
-        options={{ 
-          title: 'Beoordelingen', 
+      <Stack.Screen
+        options={{
+          title: 'Beoordelingen',
           headerShown: true,
-          headerTransparent: false,
-          headerTitle: 'Beoordelingen',
+          headerTitleAlign: 'center',
           headerTitleStyle: {
             fontFamily: 'PPMonumentExtended-Regular',
             fontSize: 14,
           },
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{backgroundColor: 'rgba(255,255,255,0.7)', borderRadius:20, padding: 10, marginLeft:10, marginBottom: 10, width: 40, height: 40}}>
-              <Icon name="chevron-left" size={24} color={Colors.black} style={{marginLeft:5}}/>
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
+              <Icon name="chevron-left" size={24} color={Colors.black} />
             </TouchableOpacity>
           ),
         }}
       />
-      <View style={styles.filterSortContainer}>
-      <Link href="/home/sort/sortscreen" asChild>
+      {/* <View style={styles.filterSortContainer}>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Sorteren op</Text>
           <Icon name="chevron-down" size={16} color={Colors.black} />
         </TouchableOpacity>
-      </Link>
-      <Link href="/home/filter/filterscreen" asChild>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Filter</Text>
           <Icon name="filter" size={16} color={Colors.black} />
         </TouchableOpacity>
-      </Link>
-      </View>
-      <Text style={styles.reviewCount}>{item.reviews.length} beoordelingen</Text>
-      {item.reviews.map((review, index) => (
+      </View> */}
+      <Text style={styles.reviewCount}>{reviews.length} beoordelingen</Text>
+      {reviews.map((review, index) => (
         <View key={index} style={styles.reviewContainer}>
           <View style={styles.reviewerInfo}>
-            <Text style={styles.reviewAuthor}>{review.author}</Text>
-            <Text style={styles.reviewDate}>{review.date}</Text>
+            <Image source={{ uri: review.fashion_items.fashion_item_photos[0].url }} style={styles.reviewImage} />
+            <View>
+              <Text style={styles.reviewAuthor}>{profiles[review.user_id]}</Text>
+              <Text style={styles.reviewDate}>{new Date(review.created_at).toLocaleDateString()}</Text>
+              <Text style={styles.reviewDate}>{review.fit}</Text>
+            </View>
           </View>
-          <Text style={styles.reviewFitting}>{review.fitting}</Text>
           <View style={styles.reviewStars}>
             {[...Array(review.rating)].map((_, i) => (
               <RatingStar key={i} name="star" size={16} color={Colors.blueIris} />
@@ -80,7 +114,7 @@ const Reviews = () => {
               <RatingStar key={i} name="star" size={16} color={Colors.lightGrey} />
             ))}
           </View>
-          <Text style={styles.reviewContent}>{review.content}</Text>
+          <Text style={styles.reviewContent}>{review.comment}</Text>
         </View>
       ))}
     </ScrollView>
@@ -91,19 +125,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 40,
-    paddingBottom: 10,
-    paddingHorizontal: 15,
-    backgroundColor: 'rgba(255,255,255,0.7)',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontFamily: 'Roboto-Bold',
-    marginLeft: 10,
   },
   filterSortContainer: {
     flexDirection: 'row',
@@ -138,7 +159,13 @@ const styles = StyleSheet.create({
   },
   reviewerInfo: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  reviewImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 5,
+    marginRight: 10,
   },
   reviewAuthor: {
     fontSize: 14,
@@ -149,12 +176,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.grey,
   },
-    reviewFitting: {
-        fontSize: 16,
-        color: Colors.black,
-        marginTop: 5,
-        fontFamily: 'Roboto-Bold',
-    },
   reviewStars: {
     flexDirection: 'row',
     marginTop: 5,
@@ -163,7 +184,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.black,
     marginTop: 5,
-    fontFamily: 'Roboto-Regular',
   },
 });
 

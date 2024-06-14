@@ -45,10 +45,12 @@ export type ProfileItemType = {
 };
 
 export interface Subcategory {
+    gender: string;
     name: string;
   }
   
   export interface Category {
+    id: string;
     name: string;
     subcategories?: Subcategory[];
   }

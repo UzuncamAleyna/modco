@@ -2,21 +2,22 @@ import React from 'react';
 import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Colors from '../../constants/Colors';
-import SvgComponent from '../Icons/ProfileIcon';
-
+import Icon from 'react-native-vector-icons/Ionicons';
 
 type ProfileListItemProps = {
     name: string;
     onPress: () => void;
-
+    icon: string;
 };
 
-const ProfileListItem = ({ name, onPress }: ProfileListItemProps) => {
+const ProfileListItem = ({ name, onPress, icon }: ProfileListItemProps) => {
     return (
         <Pressable onPress={onPress} style={styles.itemContainer}>
             <View style={styles.contentContainer}>
                 <View style={styles.leftContainer}>
-                    <SvgComponent />
+                    <View style={styles.iconContainer}>
+                        <Icon name={icon} size={24} style={styles.icon} />
+                    </View>
                     <Text style={styles.text}>{name}</Text>
                 </View>
                 <MaterialIcons name="arrow-forward-ios" size={20} style={styles.icon} />
@@ -32,6 +33,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 10,
         marginBottom: 10,
+    },
+    iconContainer: {
+        width: 30,
+        alignItems: 'center',
     },
     text: {
         fontSize: 16,

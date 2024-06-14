@@ -59,19 +59,6 @@ export default function TabLayout() {
             fontSize: 20,
           },
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} library='Octicons' />,
-          // headerRight: () => (
-          //   <Link href="/modal" asChild>
-          //     <Pressable>
-          //       {({ pressed }) => (
-          //         <FontAwesome
-          //           name="info-circle"
-          //           size={25}
-          //           style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-          //         />
-          //       )}
-          //     </Pressable>
-          //   </Link>
-          // ),
         }}
       />
       <Tabs.Screen
@@ -112,7 +99,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="heart" color={color} library='Octicons' />,
           headerRight: () => (
             <TouchableOpacity onPress={() => {
-              // Voeg hier de logica toe om de favorieten te wissen
+              // Delete logic of all favorites
             }}>
               <Text style={{ marginRight: 20, borderColor: 'black', borderWidth: 0.25, borderRadius: 5, padding: 5 }}>Wis</Text>
             </TouchableOpacity>
@@ -123,6 +110,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profiel',
+          headerShown: false,
           headerTitle: 'Mijn Profiel',
           headerTitleStyle: {
             fontFamily: 'PPMonumentExtended-Regular',

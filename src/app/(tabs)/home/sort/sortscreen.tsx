@@ -30,9 +30,9 @@ const Sorteren = () => {
         }}
       />
       <RadioButton
-        label="Must-haves"
-        selected={selectedOption === 'Must-haves'}
-        onPress={() => setSelectedOption('Must-haves')}
+        label="Best beoordeeld"
+        selected={selectedOption === 'Best beoordeeld'}
+        onPress={() => setSelectedOption('Best beoordeeld')}
       />
       <View style={{ height: 1, backgroundColor: Colors.lightGrey, marginVertical: 10 }} />
       <RadioButton

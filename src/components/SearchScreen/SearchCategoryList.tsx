@@ -1,90 +1,49 @@
-// src/app/(tabs)/search/CategoryList.tsx
-import React from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import Colors from '@/src/constants/Colors';
 import CategoryListItem from './CategoryListItem';
+import { supabase } from '@/src/lib/supabase';
 import { Category } from '@/src/types';
 
-const categories: Category[] = [
-  {
-    name: 'Kleding',
-    subcategories: [
-      { name: 'Alle' },
-      { name: 'Jurken' },
-      { name: 'Tops' },
-      { name: 'Korte Broeken' },
-      { name: 'Rokken' },
-      { name: 'Co-ords' },
-      { name: 'Zwemkleding & Strandkleding' },
-      { name: 'Blazers' },
-      { name: 'Blouses' },
-      { name: 'Cargo Broeken' },
-      { name: 'Jassen & Jacks' },
-      { name: 'Truien & Sweatshirts' },
-      { name: 'Jeans' },
-      { name: 'Truien & Vesten' },
-      { name: 'Jumpsuits & Speelpakken' },
-      { name: 'Lingerie & Nachtkleding' },
-      { name: "Pyjama's" },
-      { name: 'Shirts' },
-      { name: 'Sportkleding' },
-      { name: 'Kostuums & Kleermakerijen' },
-      { name: 'Trainingspakken & Joggers' },
-      { name: 'Broeken & Leggings' },
-    ],
-  },
-  {
-    name: 'Schoenen',
-    subcategories: [
-      { name: 'Trainers' },
-      { name: 'Sandalen' },
-      { name: 'Hakken' },
-      { name: 'Sandalen met hak' },
-      { name: 'Platte schoenen' },
-      { name: 'Balletpumps' },
-      { name: 'Laarzen' },
-      { name: 'Platte Sandalen' },
-      { name: 'Loafers' },
-    ],
-  },
-  {
-    name: 'Accessoires',
-    subcategories: [
-      { name: 'Zonnebrillen' },
-      { name: 'Haaraccessoires' },
-      { name: 'Hoeden' },
-      { name: "Sokken & Panty's" },
-      { name: 'Riemen' },
-      { name: 'Sieraden' },
-      { name: 'Mutsen' },
-    ],
-  },
-  {
-    name: 'Tassen',
-    subcategories: [
-      { name: 'Tassen' },
-      { name: 'Tote Tassen' },
-      { name: 'Schoudertassen' },
-      { name: 'Clutchs' },
-      { name: 'Portemonnees' },
-    ],
-  },
-  { name: 'Winkels' },
-];
-
 const CategoryList = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedGender, setSelectedGender] = useState<string>('Dames');
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select(`
+          id,
+          name,
+          subcategories ( id, name, gender )
+        `);
+
+      if (error) {
+        console.error('Error fetching categories:', error);
+      } else {
+        setCategories(data);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const handlePress = (category: Category) => {
-    if (category.name === 'Winkels') {
-      router.push('/search/shops/shopsscreen');
-    } else {
-      router.push({
-        pathname: '/search/subcategories/subcategoriesscreen',
-        params: { category: category.name, subcategories: JSON.stringify(category.subcategories) },
-      });
-    }
+    const filteredSubcategories = category.subcategories.filter(
+      subcategory => subcategory.gender === selectedGender
+    );
+
+    router.push({
+      pathname: '/search/subcategories/subcategoriesscreen',
+      params: { category: category.name, subcategories: JSON.stringify(filteredSubcategories) },
+    });
+  };
+
+  const handleShopsPress = () => {
+    router.push('/search/shops/shopsscreen');
   };
 
   return (
@@ -95,11 +54,29 @@ const CategoryList = () => {
           headerShown: true,
         }}
       />
+      <View style={styles.genderTabs}>
+        <TouchableOpacity
+          onPress={() => setSelectedGender('Dames')}
+          style={[styles.genderTab, selectedGender === 'Dames' && styles.activeTab]}
+        >
+          <Text style={[styles.genderText, selectedGender === 'Dames' && styles.tabText]}>Dames</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setSelectedGender('Heren')}
+          style={[styles.genderTab, selectedGender === 'Heren' && styles.activeTab]}
+        >
+          <Text style={[styles.genderText, selectedGender === 'Heren' && styles.tabText]}>Heren</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
-        data={categories}
-        keyExtractor={(item) => item.name}
+        data={[...categories, { id: 'shops', name: 'Winkels', subcategories: [] }]}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <CategoryListItem searchitem={item} onPress={() => handlePress(item)} />
+          item.id === 'shops' ? (
+            <CategoryListItem searchitem={item} onPress={handleShopsPress} />
+          ) : (
+            <CategoryListItem searchitem={item} onPress={() => handlePress(item)} />
+          )
         )}
       />
     </View>
@@ -111,6 +88,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
     padding: 10,
+  },
+  genderTabs: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
+  genderTab: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.blueIris,
+  },
+  genderText: {
+    color: Colors.grey,
+    fontFamily: 'PPMonumentExtended-Regular',
+    fontSize: 14,
+  },
+  tabText: {
+    color: Colors.blueIris,
   },
 });
 

@@ -1,31 +1,86 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import clothingItems from '../../../../../assets/data/clothingItems';
 import Colors from '@/src/constants/Colors';
 import { FlatList } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Octicons';
-import RatingStar from 'react-native-vector-icons/FontAwesome'; 
+import RatingStar from 'react-native-vector-icons/FontAwesome';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { supabase } from '@/src/lib/supabase';
 
 const Item = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const item = clothingItems.find(item => item.id.toString() === id);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [averageRating, setAverageRating] = useState(0);
-  const [reviewCount, setReviewCount] = useState(0);
+  const [item, setItem] = useState(null);
+  const [profiles, setProfiles] = useState({});
 
   useEffect(() => {
-    if (item && item.reviews.length > 0) {
-      const totalRating = item.reviews.reduce((sum, review) => sum + review.rating, 0);
-      const average = totalRating / item.reviews.length;
-      setAverageRating(average);
-      setReviewCount(item.reviews.length);
+    const fetchItem = async () => {
+      const { data, error } = await supabase
+        .from('fashion_items')
+        .select(`
+          id,
+          title,
+          description,
+          price,
+          shops (id, name),
+          fashion_item_photos (url),
+          reviews (
+            rating,
+            comment,
+            user_id,
+            created_at
+          ),
+          fashion_item_sizes (
+            sizes (name)
+          ),
+          fashion_item_colors (
+            colors (name)
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching item:', error.message);
+      } else {
+        setItem(data);
+        console.log('Fetched Item:', JSON.stringify(data, null, 2));
+      }
+    };
+
+    fetchItem();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchProfiles = async (userIds) => {
+      try {
+        const { data: profilesData, error } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', userIds);
+
+        if (error) throw error;
+
+        const profilesMap = profilesData.reduce((acc, profile) => {
+          acc[profile.id] = profile.full_name;
+          return acc;
+        }, {});
+
+        setProfiles(profilesMap);
+      } catch (error) {
+        console.error('Error fetching profiles:', error.message);
+      }
+    };
+
+    if (item) {
+      const userIds = item.reviews.map(review => review.user_id);
+      fetchProfiles(userIds);
     }
   }, [item]);
 
@@ -44,48 +99,60 @@ const Item = () => {
     setCurrentImageIndex(index);
   };
 
-  const handleViewMoreReviews = () => {
-    router.push(`/home/reviews/reviewsscreen?id=${id}`);
+  const firstPhoto = item.fashion_item_photos.length ? item.fashion_item_photos[0].url : null;
+  const shopName = item.shops ? item.shops.name : 'Unknown Shop';
+  const shopId = item.shops ? item.shops.id : null;
+  const sizes = item.fashion_item_sizes.map(sizeItem => sizeItem.sizes.name).join(', ');
+  const colors = item.fashion_item_colors.map(colorItem => colorItem.colors.name).join(', ');
+
+  const handleViewShop = () => {
+    if (shopId) {
+      router.push(`/search/shops/shopdetail/${shopId}`);
+    }
   };
 
-  const limitWords = (text, wordLimit) => {
-    const words = text.split(' ');
-    if (words.length > wordLimit) {
-      return words.slice(0, wordLimit).join(' ') + '...';
-    }
-    return text;
+  const averageRating = item.reviews.length > 0
+    ? item.reviews.reduce((acc, review) => acc + review.rating, 0) / item.reviews.length
+    : 0;
+
+  const reviewCount = item.reviews.length;
+
+  const handleViewMoreReviews = () => {
+    router.push(`/home/reviews/${id}`);
   };
+
+  const review = item.reviews[0];
 
   return (
     <GestureHandlerRootView style={styles.container}>
       <ScrollView>
-        <Stack.Screen 
-          options={{ 
-            title: 'Detail: ' + id, 
+        <Stack.Screen
+          options={{
+            title: 'Detail: ' + id,
             headerShown: true,
             headerTransparent: true,
             headerTitle: '',
             headerLeft: () => (
-              <TouchableOpacity onPress={() => router.back()} style={{backgroundColor: 'rgba(255,255,255,0.7)', borderRadius:20, padding: 10, marginLeft:10, marginBottom: 10, width: 40, height: 40}}>
-                <Icon name="chevron-left" size={24} color={Colors.black} style={{marginLeft:5}}/>
+              <TouchableOpacity onPress={() => router.back()} style={{ backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 20, padding: 10, marginLeft: 10, marginBottom: 10, width: 40, height: 40 }}>
+                <Icon name="chevron-left" size={24} color={Colors.black} style={{ marginLeft: 5 }} />
               </TouchableOpacity>
             ),
           }}
         />
         <View style={styles.imageContainer}>
           <FlatList
-            data={item.images}
+            data={item.fashion_item_photos}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onScroll={handleScroll}
-            keyExtractor={(image, index) => index.toString()} 
+            keyExtractor={(photo) => photo.url}
             renderItem={({ item }) => (
-              <Image source={item} style={styles.image} />
+              <Image source={{ uri: item.url }} style={styles.image} />
             )}
           />
           <View style={styles.pageControl}>
-            {item.images.map((_, index) => (
+            {item.fashion_item_photos.map((_, index) => (
               <View
                 key={index}
                 style={[
@@ -97,7 +164,7 @@ const Item = () => {
           </View>
         </View>
         <View style={styles.section}>
-          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={styles.itemName}>{item.title}</Text>
           <Text style={styles.itemPrice}>€ {item.price}</Text>
           <View style={styles.ratingContainer}>
             {[...Array(Math.round(averageRating))].map((_, i) => (
@@ -120,44 +187,44 @@ const Item = () => {
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Productdetails</Text>
-          <Text style={styles.sectionContent}>Maat: Verkrijgbaar in {Array.isArray(item.size) ? item.size.join(', ') : [item.size].join(', ')}</Text>
-          <Text style={styles.sectionContent}>Materiaal: {item.material}</Text>
-          <Text style={styles.sectionContent}>Kleur: {item.color}</Text>
-          <Text style={styles.sectionContent}>Lengte: {item.length}</Text>
+          <Text style={styles.sectionContent}>Maat: Verkrijgbaar in {sizes}</Text>
+          <Text style={styles.sectionContent}>Kleur: {colors}</Text>
         </View>
         <View style={styles.section}>
           <View style={styles.sellerContainer}>
             <View style={styles.sellerInfo}>
-              <Image source={item.seller.image} style={styles.sellerImage} />
-              <Text style={styles.sellerName}>{item.seller.name}</Text>
+              <Image source={{ uri: firstPhoto }} style={styles.sellerImage} />
+              <Text style={styles.sellerName}>{shopName}</Text>
             </View>
-            <TouchableOpacity style={styles.followButton}>
-              <Text style={styles.followButtonText}>Volgend</Text>
+            <TouchableOpacity style={styles.followButton} onPress={handleViewShop}>
+              <Text style={styles.followButtonText}>Bekijk</Text>
             </TouchableOpacity>
           </View>
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Beoordelingen</Text>
-          {item.reviews.length > 0 && (
+          {review && (
             <View style={styles.reviewContainer}>
               <View style={styles.reviewerInfo}>
-                <Text style={styles.reviewAuthor}>{item.reviews[0].author}</Text>
-                <Text style={styles.reviewDate}>{item.reviews[0].date}</Text>
+                <Text style={styles.reviewAuthor}>{profiles[review.user_id]}</Text>
+                <Text style={styles.reviewDate}>{new Date(review.created_at).toLocaleDateString()}</Text>
               </View>
               <View style={styles.reviewStars}>
-                {[...Array(item.reviews[0].rating)].map((_, i) => (
+                {[...Array(review.rating)].map((_, i) => (
                   <RatingStar key={i} name="star" size={16} color={Colors.blueIris} />
                 ))}
-                {[...Array(5 - item.reviews[0].rating)].map((_, i) => (
+                {[...Array(5 - review.rating)].map((_, i) => (
                   <RatingStar key={i} name="star" size={16} color={Colors.lightGrey} />
                 ))}
               </View>
-              <Text style={styles.reviewContent}>{limitWords(item.reviews[0].content, 20)}</Text>
+              <Text style={styles.reviewContent}>{review.comment}</Text>
             </View>
           )}
-          <TouchableOpacity style={styles.viewMoreButton} onPress={handleViewMoreReviews}>
-            <Text style={styles.viewMoreButtonText}>Bekijk meer</Text>
-          </TouchableOpacity>
+          {reviewCount > 1 && (
+            <TouchableOpacity style={styles.viewMoreButton} onPress={handleViewMoreReviews}>
+              <Text style={styles.viewMoreButtonText}>Bekijk meer</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
     </GestureHandlerRootView>
