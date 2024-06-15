@@ -45,6 +45,7 @@ export type ProfileItemType = {
 };
 
 export interface Subcategory {
+    id: string;
     gender: string;
     name: string;
   }
