@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
+import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import Icon from 'react-native-vector-icons/Octicons';
 import Colors from '@/src/constants/Colors';
 import ProductListItem from '../../../../components/ProductListItem';
 import { supabase } from '@/src/lib/supabase';
 
-const fetchFashionItems = async (subcategoryId: string, gender: string) => {
+const fetchFashionItems = async (subcategoryId: string) => {
   const { data, error } = await supabase
     .from('fashion_items')
     .select(`
@@ -25,31 +26,36 @@ const fetchFashionItems = async (subcategoryId: string, gender: string) => {
 
   return data;
 };
-
 const FashionItemList = () => {
-  const { subcategoryId, gender } = useLocalSearchParams();
+  const { subcategoryId, subcategoryName } = useLocalSearchParams();
   const [fashionItems, setFashionItems] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchItems = async () => {
-      const items = await fetchFashionItems(subcategoryId as string, gender as string);
+      const items = await fetchFashionItems(subcategoryId as string);
       setFashionItems(items);
     };
 
     fetchItems();
-  }, [subcategoryId, gender]);
+  }, [subcategoryId]);
 
   return (
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: 'Fashion Items',
+          title: subcategoryName as string, 
           headerShown: true,
           headerTitleAlign: 'center',
           headerTitleStyle: {
             fontFamily: 'PPMonumentExtended-Regular',
             fontSize: 14,
           },
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
+              <Icon name="chevron-left" size={24} color={Colors.black} />
+            </TouchableOpacity>
+          ),
         }}
       />
       <FlatList
