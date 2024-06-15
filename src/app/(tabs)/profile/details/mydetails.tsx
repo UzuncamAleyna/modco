@@ -83,6 +83,32 @@ const ProfileDetailsScreen = () => {
     }
   };
 
+  const deleteImage = async () => {
+    if (avatarUrl) {
+      const imageName = avatarUrl.split('/').pop();
+      const { error: deleteError } = await supabase.storage
+        .from('avatars')
+        .remove([imageName]);
+
+      if (deleteError) {
+        console.error('Error deleting avatar:', deleteError.message);
+      } else {
+        setAvatarUrl('');
+        const { error } = await supabase
+          .from('profiles')
+          .update({ avatar_url: null })
+          .eq('id', session.user.id);
+
+        if (error) {
+          console.error('Error updating profile:', error.message);
+          Alert.alert('Er is iets misgegaan', 'Kon profiel niet bijwerken. Probeer het opnieuw.');
+        } else {
+          Alert.alert('Profiel bijgewerkt', 'Je profiel is succesvol bijgewerkt.');
+        }
+      }
+    }
+  };
+
   const handleSave = async () => {
     const { error } = await supabase
       .from('profiles')
@@ -118,7 +144,12 @@ const ProfileDetailsScreen = () => {
       />
       <View style={styles.avatarContainer}>
         {avatarUrl ? (
+          <>
           <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+          <TouchableOpacity style={styles.deleteButton} onPress={deleteImage}>
+          <Ionicons name="close-circle" size={24} color={Colors.blueIris} />
+        </TouchableOpacity>
+        </>
         ) : (
           <View style={styles.initialsCircle}>
             <Text style={styles.initials}>{getInitials(fullName)}</Text>
@@ -173,6 +204,11 @@ const styles = StyleSheet.create({
     width: wp('25%'),
     height: 105,
     borderRadius: 50,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
   },
   initialsCircle: {
     width: 100,
