@@ -41,6 +41,8 @@ const ProfileList = () => {
             router.push('/profile/following/followingscreen');
         } else if (option === 'Mijn Bestellingen') {
             router.push('/profile/orders/orderlist');
+        } else if (option === 'Over MODCO') {
+            router.push('/profile/about/aboutmodco');
         } else {
             console.log('Pressed:', option);
         }
