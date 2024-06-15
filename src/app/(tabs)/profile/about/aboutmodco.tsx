@@ -1,4 +1,3 @@
-// src/app/(tabs)/profile/over/OverMODCO.tsx
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Stack, useRouter } from 'expo-router';

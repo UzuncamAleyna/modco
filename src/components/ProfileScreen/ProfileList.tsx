@@ -43,6 +43,8 @@ const ProfileList = () => {
             router.push('/profile/orders/orderlist');
         } else if (option === 'Over MODCO') {
             router.push('/profile/about/aboutmodco');
+        } else if (option === 'Privacybeleid') {
+            router.push('/profile/privacy/privacypolicy');
         } else {
             console.log('Pressed:', option);
         }
