@@ -46,14 +46,14 @@ app.post('/save-order', async (req, res) => {
       .from('fashion_item_photos')
       .select('url')
       .eq('fashion_item_id', fashionItemId)
-      .single();
+      .limit(1);
 
     if (photoError) {
       console.error('Supabase error fetching photo:', photoError);
       throw photoError;
     }
 
-    const imageUrl = photoData ? photoData.url : null;
+    const imageUrl = photoData.length > 0 ? photoData[0].url : null;
 
     const { data, error } = await supabase
       .from('orders')
