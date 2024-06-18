@@ -42,6 +42,7 @@ export type SearchItemType = {
 export type ProfileItemType = {
     name: string;
     icon: any;
+    requiresDesigner?: boolean;
 };
 
 export interface Subcategory {

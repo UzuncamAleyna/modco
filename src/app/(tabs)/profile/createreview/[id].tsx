@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Alert, Keyboard, TouchableWithoutFeedback, KeyboardAvoidingView,  ScrollView, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Octicons';
 import { useRouter, Stack, useLocalSearchParams } from 'expo-router';
 import Colors from '@/src/constants/Colors';
@@ -64,7 +64,7 @@ const CreateReview = () => {
             user_id: session.user.id,
             fashion_item_id: reviewDetails.fashion_items.id,
             shop_id: reviewDetails.fashion_items.shop_id,
-            rating,
+            rating: Math.round(rating), 
             fit,
             comment: review,
           },
@@ -89,8 +89,14 @@ const CreateReview = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >      
+    <ScrollView contentContainerStyle={styles.scrollView}>
+
+    <Stack.Screen
         options={{
           title: 'Beoordelen',
           headerShown: true,
@@ -119,16 +125,17 @@ const CreateReview = () => {
       />
       <Text style={styles.label}>Algemene pasvorm:</Text>
       <View style={styles.fitContainer}>
-        <TouchableOpacity onPress={() => setFit('Klein')} style={styles.fitOption}>
-          <Text style={styles.fitText}>Klein</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setFit('Op maat')} style={styles.fitOption}>
-          <Text style={styles.fitText}>Op maat</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setFit('Groot')} style={styles.fitOption}>
-          <Text style={styles.fitText}>Groot</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity onPress={() => setFit('Klein')} style={[styles.fitOption, fit === 'Klein' && styles.selectedFitOption]}>
+            <Text style={[styles.fitText, fit === 'Klein' && styles.selectedFitText]}>Klein</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setFit('Op maat')} style={[styles.fitOption, fit === 'Op maat' && styles.selectedFitOption]}>
+            <Text style={[styles.fitText, fit === 'Op maat' && styles.selectedFitText]}>Op maat</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setFit('Groot')} style={[styles.fitOption, fit === 'Groot' && styles.selectedFitOption]}>
+            <Text style={[styles.fitText, fit === 'Groot' && styles.selectedFitText]}>Groot</Text>
+          </TouchableOpacity>
+        </View>
+
       <Text style={styles.label}>Geef jouw beoordeling over het artikel:</Text>
       <TextInput
         style={styles.textInput}
@@ -141,7 +148,9 @@ const CreateReview = () => {
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Beoordeling plaatsen</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
+    </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -150,6 +159,9 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: Colors.white,
     flex: 1,
+  },
+  scrollView: {
+    paddingBottom: 50,
   },
   title: {
     fontSize: 18,
@@ -166,7 +178,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 20,
+    marginTop: 20,
   },
   fitContainer: {
     flexDirection: 'row',
@@ -179,6 +192,8 @@ const styles = StyleSheet.create({
   },
   fitText: {
     fontSize: 16,
+    fontFamily: 'Roboto-Regular',
+    marginBottom: 5,
   },
   textInput: {
     borderColor: Colors.grey,
@@ -187,6 +202,13 @@ const styles = StyleSheet.create({
     padding: 10,
     textAlignVertical: 'top',
     marginBottom: 20,
+  },
+  selectedFitOption: {
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.blueIris,
+  },
+  selectedFitText: {
+    color: Colors.blueIris,
   },
   submitButton: {
     backgroundColor: Colors.black,

@@ -1,19 +1,24 @@
-// CategoryItem.tsx
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
-import { CategoryItemType } from '../types';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
+export type CategoryItemType = {
+  id: string;
+  name: string;
+  image: string;
+  sales_count: number;
+};
 
 type CategoryItemProps = {
-    categoryitem: CategoryItemType;
-}
+  categoryitem: CategoryItemType;
+  onPress: () => void;
+};
 
-const CategoryItem = ({categoryitem}: CategoryItemProps) => {
+const CategoryItem = ({ categoryitem, onPress }: CategoryItemProps) => {
   return (
-    <View style={styles.container}>
-      <Image source={categoryitem.image} style={styles.image} />
+    <TouchableOpacity onPress={onPress} style={styles.container}>
+      <Image source={{ uri: categoryitem.image }} style={styles.image} />
       <Text style={styles.title}>{categoryitem.name}</Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 

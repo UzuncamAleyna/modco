@@ -97,13 +97,13 @@ export default function TabLayout() {
             fontSize: 14,
           },
           tabBarIcon: ({ color }) => <TabBarIcon name="heart" color={color} library='Octicons' />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => {
-              // Delete logic of all favorites
-            }}>
-              <Text style={{ marginRight: 20, borderColor: 'black', borderWidth: 0.25, borderRadius: 5, padding: 5 }}>Wis</Text>
-            </TouchableOpacity>
-          ),
+          // headerRight: () => (
+          //   <TouchableOpacity onPress={() => {
+          //     // Delete logic of all favorites
+          //   }}>
+          //     <Text style={{ marginRight: 20, borderColor: 'black', borderWidth: 0.25, borderRadius: 5, padding: 5 }}>Wis</Text>
+          //   </TouchableOpacity>
+          // ),
         }}
       />
       <Tabs.Screen

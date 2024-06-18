@@ -83,6 +83,14 @@ app.post('/save-order', async (req, res) => {
       throw new Error('No data returned from Supabase');
     }
 
+    // Update the sales_count in the fashion_items table
+    const { error: updateError } = await supabase
+      .rpc('increment_sales_count', { item_id: fashionItemId });
+
+    if (updateError) {
+      throw updateError;
+    }
+
     res.status(200).json({ message: 'Order saved successfully', orderId: data[0].id });
   } catch (error) {
     console.error('Error saving order:', error);

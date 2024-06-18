@@ -1,29 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, FlatList } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, Modal, FlatList } from 'react-native';
 import Colors from '../../constants/Colors';
-import CategoryListItem from '../SearchScreen/CategoryListItem';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import Modal from 'react-native-modal';
+import CategoryListItem from '../SearchScreen/CategoryListItem';
 
-const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, gender }) => {
-  const [images, setImages] = useState([null, null, null, null, null]);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
-  const [selectedColor, setSelectedColor] = useState(null);
-  const [selectedSizes, setSelectedSizes] = useState([]);
+const EditItem = ({ index, onRemove, onItemChange, categories, colors, sizes, gender, title, description, price, images, selectedCategory, selectedSubcategory, selectedColor, selectedSizes }) => {
+  const [localTitle, setLocalTitle] = useState(title || '');
+  const [localDescription, setLocalDescription] = useState(description || '');
+  const [localPrice, setLocalPrice] = useState(price || '');
+  const [localImages, setLocalImages] = useState(images || [null, null, null, null, null]);
+  const [localSelectedCategory, setLocalSelectedCategory] = useState(selectedCategory || null);
+  const [localSelectedSubcategory, setLocalSelectedSubcategory] = useState(selectedSubcategory || null);
+  const [localSelectedColor, setLocalSelectedColor] = useState(selectedColor || null);
+  const [localSelectedSizes, setLocalSelectedSizes] = useState(selectedSizes || []);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showSubcategoryModal, setShowSubcategoryModal] = useState(false);
   const [showColorModal, setShowColorModal] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
 
   useEffect(() => {
-    onItemChange(index, { title, description, price, images, selectedCategory, selectedSubcategory, selectedColor, selectedSizes });
-  }, [title, description, price, images, selectedCategory, selectedSubcategory, selectedColor, selectedSizes, gender]);
+    onItemChange(index, {
+      title: localTitle,
+      description: localDescription,
+      price: localPrice,
+      images: localImages,
+      selectedCategory: localSelectedCategory,
+      selectedSubcategory: localSelectedSubcategory,
+      selectedColor: localSelectedColor,
+      selectedSizes: localSelectedSizes,
+    });
+  }, [localTitle, localDescription, localPrice, localImages, localSelectedCategory, localSelectedSubcategory, localSelectedColor, localSelectedSizes]);
 
   const pickImage = async (imageIndex) => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -34,16 +42,16 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
     });
 
     if (!result.canceled) {
-      const newImages = [...images];
+      const newImages = [...localImages];
       newImages[imageIndex] = result.assets[0].uri;
-      setImages(newImages);
+      setLocalImages(newImages);
     }
   };
 
   const removeImage = (imageIndex) => {
-    const newImages = [...images];
+    const newImages = [...localImages];
     newImages[imageIndex] = null;
-    setImages(newImages);
+    setLocalImages(newImages);
   };
 
   const handleCategoryPress = () => {
@@ -51,12 +59,8 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
   };
 
   const handleSubcategoryPress = () => {
-    if (!selectedCategory) {
+    if (!localSelectedCategory) {
       alert('Gelieve eerst een categorie te selecteren');
-      return;
-    }
-    if (!gender) {
-      alert('Gelieve eerst een geslacht te selecteren');
       return;
     }
     setShowSubcategoryModal(true);
@@ -67,7 +71,7 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
   };
 
   const handleSizePress = () => {
-    if (!selectedSubcategory) {
+    if (!localSelectedSubcategory) {
       alert('Gelieve eerst een subcategorie te selecteren');
       return;
     }
@@ -75,20 +79,20 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
   };
 
   const handleSizeSelect = (size) => {
-    if (selectedSizes.some(s => s.id === size.id)) {
-      setSelectedSizes(selectedSizes.filter((s) => s.id !== size.id));
+    if (localSelectedSizes.some(s => s.id === size.id)) {
+      setLocalSelectedSizes(localSelectedSizes.filter((s) => s.id !== size.id));
     } else {
-      setSelectedSizes([...selectedSizes, size]);
+      setLocalSelectedSizes([...localSelectedSizes, size]);
     }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Artikel Titel {index + 1}</Text>
-      <TextInput style={styles.input} value={title} onChangeText={setTitle} />
+      <TextInput style={styles.input} value={localTitle} onChangeText={setLocalTitle} />
       <Text style={styles.label}>Voeg max. 5 foto’s toe:</Text>
       <View style={styles.photosContainer}>
-        {images.map((image, imageIndex) => (
+        {localImages.map((image, imageIndex) => (
           <TouchableOpacity
             key={imageIndex}
             onPress={() => (image ? removeImage(imageIndex) : pickImage(imageIndex))}
@@ -107,20 +111,20 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
         ))}
       </View>
       <Text style={styles.label}>Beschrijving *</Text>
-      <TextInput style={styles.input} value={description} onChangeText={setDescription} multiline />
+      <TextInput style={styles.input} value={localDescription} onChangeText={setLocalDescription} multiline />
       <Text style={styles.label}>Prijs *</Text>
-      <TextInput style={styles.input} value={price} onChangeText={setPrice} keyboardType="numeric" placeholder='€'/>
-      <CategoryListItem searchitem={{ name: selectedCategory ? selectedCategory.name : 'Categorie' }} onPress={handleCategoryPress} />
-      <CategoryListItem searchitem={{ name: selectedSubcategory ? selectedSubcategory.name : 'Subcategorie' }} onPress={handleSubcategoryPress} />
-      <CategoryListItem searchitem={{ name: selectedColor ? selectedColor.name : 'Kleur' }} onPress={handleColorPress} />
-      <CategoryListItem searchitem={{ name: selectedSizes.length ? selectedSizes.map(s => s.name).join(', ') : 'Maten' }} onPress={handleSizePress} />
+      <TextInput style={styles.input} value={localPrice} onChangeText={setLocalPrice} keyboardType="numeric" placeholder='€'/>
+      <CategoryListItem searchitem={{ name: localSelectedCategory ? localSelectedCategory.name : 'Categorie' }} onPress={handleCategoryPress} />
+      <CategoryListItem searchitem={{ name: localSelectedSubcategory ? localSelectedSubcategory.name : 'Subcategorie' }} onPress={handleSubcategoryPress} />
+      <CategoryListItem searchitem={{ name: localSelectedColor ? localSelectedColor.name : 'Kleur' }} onPress={handleColorPress} />
+      <CategoryListItem searchitem={{ name: localSelectedSizes.length ? localSelectedSizes.map(s => s.name).join(', ') : 'Maten' }} onPress={handleSizePress} />
       <TouchableOpacity style={styles.button} onPress={() => onRemove(index)}>
         <Text style={styles.buttonText}>Verwijder</Text>
       </TouchableOpacity>
 
       {/* Category Modal */}
-      <Modal isVisible={showCategoryModal} onBackdropPress={() => setShowCategoryModal(false)} style={styles.modal}>
-        <View style={styles.modalContent}>
+      <Modal visible={showCategoryModal} transparent={true}>
+        <View style={styles.modalContainer}>
           <FlatList
             data={categories}
             keyExtractor={(item) => item.id}
@@ -128,12 +132,12 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
               <TouchableOpacity
                 style={styles.modalItem}
                 onPress={() => {
-                  setSelectedCategory(item);
+                  setLocalSelectedCategory(item);
                   setShowCategoryModal(false);
-                  setSelectedSubcategory(null);  //Reset subcategory when category changes
+                  setLocalSelectedSubcategory(null);  
                 }}
               >
-                <Text style={styles.modalText}>{item.name}</Text>
+                <Text>{item.name}</Text>
               </TouchableOpacity>
             )}
           />
@@ -144,20 +148,20 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
       </Modal>
 
       {/* Subcategory Modal */}
-      <Modal isVisible={showSubcategoryModal} onBackdropPress={() => setShowSubcategoryModal(false)} style={styles.modal}>
-        <View style={styles.modalContent}>
+      <Modal visible={showSubcategoryModal} transparent={true}>
+        <View style={styles.modalContainer}>
           <FlatList
-            data={categories.find(cat => cat.id === selectedCategory?.id)?.subcategories.filter(sub => sub.gender === gender) || []}
+            data={categories.find(cat => cat.id === localSelectedCategory?.id)?.subcategories.filter(sub => sub.gender === gender) || []}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.modalItem}
                 onPress={() => {
-                  setSelectedSubcategory(item);
+                  setLocalSelectedSubcategory(item);
                   setShowSubcategoryModal(false);
                 }}
               >
-                <Text style={styles.modalText}>{item.name}</Text>
+                <Text>{item.name}</Text>
               </TouchableOpacity>
             )}
           />
@@ -168,8 +172,8 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
       </Modal>
 
       {/* Color Modal */}
-      <Modal isVisible={showColorModal} onBackdropPress={() => setShowColorModal(false)} style={styles.modal}>
-        <View style={styles.modalContent}>
+      <Modal visible={showColorModal} transparent={true}>
+        <View style={styles.modalContainer}>
           <FlatList
             data={colors}
             keyExtractor={(item) => item.id}
@@ -177,11 +181,11 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
               <TouchableOpacity
                 style={styles.modalItem}
                 onPress={() => {
-                  setSelectedColor(item);
+                  setLocalSelectedColor(item);
                   setShowColorModal(false);
                 }}
               >
-                <Text style={styles.modalText}>{item.name}</Text>
+                <Text>{item.name}</Text>
               </TouchableOpacity>
             )}
           />
@@ -192,8 +196,8 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
       </Modal>
 
       {/* Size Modal */}
-      <Modal isVisible={showSizeModal} onBackdropPress={() => setShowSizeModal(false)} style={styles.modal}>
-        <View style={styles.modalContent}>
+      <Modal visible={showSizeModal} transparent={true}>
+        <View style={styles.modalContainer}>
           <FlatList
             data={sizes}
             keyExtractor={(item) => item.id}
@@ -202,7 +206,7 @@ const SellItem = ({ index, onRemove, onItemChange, categories, colors, sizes, ge
                 style={styles.modalItem}
                 onPress={() => handleSizeSelect(item)}
               >
-                <Text style={{ color: selectedSizes.some(s => s.id === item.id) ? Colors.blueIris : 'black' }}>{item.name}</Text>
+                <Text style={{ color: localSelectedSizes.some(s => s.id === item.id) ? Colors.blueIris : 'black' }}>{item.name}</Text>
               </TouchableOpacity>
             )}
           />
@@ -273,33 +277,41 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto-Regular',
     textAlign: 'center',
   },
-  modal: {
-    justifyContent: 'flex-end',
-    margin: 0,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingTop: 300,
+    paddingBottom: 300,
   },
   modalContent: {
-    backgroundColor: Colors.white,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    width: wp('80%'),
     padding: 20,
-    height: '50%',
+    backgroundColor: Colors.white,
+    borderRadius: 10,
+    alignItems: 'center',
   },
-  modalText: {
-    fontSize: 16,
-    fontFamily: 'Roboto-Regular',
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
   },
   modalItem: {
-    paddingHorizontal: 10,
-    paddingVertical: 15,
+    width: '100%',
+    padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
+  modalItemText: {
+    fontSize: 16,
+    fontFamily: 'Roboto-Regular',
+  },
   modalCloseButton: {
     marginTop: 20,
-    padding: 15,
+    padding: 10,
     backgroundColor: Colors.blueIris,
     borderRadius: 5,
-    alignItems: 'center',
   },
   modalCloseButtonText: {
     color: Colors.white,
@@ -308,4 +320,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SellItem;
+export default EditItem;

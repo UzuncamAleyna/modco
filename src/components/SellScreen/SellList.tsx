@@ -6,6 +6,7 @@ import RadioButton from '../RadioButton/RadioButton';
 import { supabase } from '@/src/lib/supabase';
 import * as FileSystem from "expo-file-system";
 import { decode } from "base64-arraybuffer";
+import { useRouter } from 'expo-router';
 
 const SellList = () => {
   const [collectionTitle, setCollectionTitle] = useState('');
@@ -15,6 +16,7 @@ const SellList = () => {
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [shopId, setShopId] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     fetchCategories();
@@ -266,6 +268,7 @@ const SellList = () => {
 
       await Promise.all(itemPromises);
       console.log('Collection Submitted');
+      router.push('/(tabs)/home'); 
     } catch (error) {
       console.error('Error submitting collection:', error);
       alert(`Error submitting collection: ${error.message}`);

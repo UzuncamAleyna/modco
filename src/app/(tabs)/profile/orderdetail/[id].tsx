@@ -24,7 +24,8 @@ const OrderDetails = () => {
         fashion_items (
           id,
           title,
-          shop_id
+          shop_id,
+          shops (name)
         )
       `)      
       .eq('id', id)
@@ -66,7 +67,7 @@ const OrderDetails = () => {
       />
       <View style={styles.header}>
         <Text style={styles.orderId}>Bestelling {order.order_id}</Text>
-        <Text style={styles.status}>Geleverd</Text>
+        <Text style={styles.status}>{order.orderstatus}</Text>
         <Text style={styles.date}>{new Date(order.created_at).toLocaleDateString()}</Text>
       </View>
       {order.image && (
@@ -85,7 +86,7 @@ const OrderDetails = () => {
       </TouchableOpacity>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Verkoper</Text>
-        <Text style={styles.sectionContent}>Esmée Rose</Text>
+        <Text style={styles.sectionContent}>{order.fashion_items.shops.name}</Text>
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Betalingsgegevens</Text>

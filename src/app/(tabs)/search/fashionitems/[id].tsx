@@ -26,12 +26,18 @@ const fetchFashionItems = async (subcategoryId: string) => {
 
   return data;
 };
+
 const FashionItemList = () => {
   const { subcategoryId, subcategoryName } = useLocalSearchParams();
   const [fashionItems, setFashionItems] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
+    if (!subcategoryId) {
+      console.error('Invalid subcategoryId:', subcategoryId);
+      return;
+    }
+
     const fetchItems = async () => {
       const items = await fetchFashionItems(subcategoryId as string);
       setFashionItems(items);
@@ -44,7 +50,7 @@ const FashionItemList = () => {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: subcategoryName as string, 
+          title: subcategoryName as string,
           headerShown: true,
           headerTitleAlign: 'center',
           headerTitleStyle: {
@@ -52,7 +58,7 @@ const FashionItemList = () => {
             fontSize: 14,
           },
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.headerLeft}>
               <Icon name="chevron-left" size={24} color={Colors.black} />
             </TouchableOpacity>
           ),
@@ -62,8 +68,13 @@ const FashionItemList = () => {
         data={fashionItems}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ProductListItem item={item} />
+          <View style={styles.item}>
+            <ProductListItem item={item} />
+          </View>
         )}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.contentContainer}
       />
     </View>
   );
@@ -73,7 +84,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    padding: 10,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+  },
+  row: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  item: {
+    flex: 1,
+    margin: 10,
+    maxWidth: '42%',
+  },
+  contentContainer: {
+    paddingBottom: 20,
+  },
+  headerLeft: {
+    marginLeft: 10,
   },
 });
 

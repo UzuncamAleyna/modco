@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import Colors from '@/src/constants/Colors';
 import { FlatList } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Octicons';
 import RatingStar from 'react-native-vector-icons/FontAwesome';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useStripe } from '@stripe/stripe-react-native';
+import axios from 'axios';
 import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/providers/AuthProvider';
 
 const Item = () => {
   const router = useRouter();
@@ -18,6 +18,9 @@ const Item = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [item, setItem] = useState(null);
   const [profiles, setProfiles] = useState({});
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const { session } = useAuth();
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -28,7 +31,7 @@ const Item = () => {
           title,
           description,
           price,
-          shops (id, name),
+          shops (id, name, image),
           fashion_item_photos (url),
           reviews (
             rating,
@@ -84,6 +87,77 @@ const Item = () => {
     }
   }, [item]);
 
+  const handleScroll = (event) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const index = Math.round(contentOffsetX / wp('100%'));
+    setCurrentImageIndex(index);
+  };
+
+  const handleSizePress = (size: string) => {
+    setSelectedSize(size);
+  };
+
+  // const handleBuyPress = async () => {
+  //   if (!selectedSize) {
+  //     Alert.alert('Error', 'Gelieve een maat te selecteren');
+  //     return;
+  //   }
+
+  //   const response = await axios.post('http://172.20.10.2:3000/create-payment-intent', {
+  //     amount: parseFloat(item.price) * 100,
+  //     currency: 'eur',
+  //   });
+
+  //   const { clientSecret } = response.data;
+
+  //   const { error } = await initPaymentSheet({
+  //     paymentIntentClientSecret: clientSecret,
+  //     merchantDisplayName: 'MODCO',
+  //     returnURL: 'myapp://home',
+  //   });
+
+  //   if (!error) {
+  //     const { error: presentError } = await presentPaymentSheet();
+  //     if (presentError) {
+  //       Alert.alert('Error', 'Er is iets misgegaan bij het betalen.');
+  //     } else {
+  //       Alert.alert('Success', 'Betaling geslaagd');
+
+  //       await axios.post('http://192.168.129.6:3000/save-order', {
+  //         userId: session ? session.user.id : null,
+  //         fashionItemId: item.id,
+  //         price: parseFloat(item.price),
+  //         size: selectedSize,
+  //         imageUrl: item.fashion_item_photos[0].url
+  //       });
+
+  //       router.push('/home');
+  //     }
+  //   } else {
+  //     Alert.alert('Error', error.message);
+  //   }
+  // };
+
+  const addToFavorites = async () => {
+    if (!session) {
+      alert('Je moet ingelogd zijn om favorieten toe te voegen.');
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('favorites')
+      .insert([
+        { user_id: session.user.id, item_id: item.id }
+      ]);
+
+    if (error) {
+      console.error('Error adding to favorites:', error.message);
+      alert('Er is iets misgegaan bij het toevoegen aan favorieten.');
+    } else {
+      alert('Item toegevoegd aan favorieten!');
+    }
+  };
+
   if (!item) {
     return (
       <View>
@@ -93,16 +167,14 @@ const Item = () => {
     );
   }
 
-  const handleScroll = (event) => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / wp('100%'));
-    setCurrentImageIndex(index);
-  };
-
   const firstPhoto = item.fashion_item_photos.length ? item.fashion_item_photos[0].url : null;
   const shopName = item.shops ? item.shops.name : 'Unknown Shop';
   const shopId = item.shops ? item.shops.id : null;
-  const sizes = item.fashion_item_sizes.map(sizeItem => sizeItem.sizes.name).join(', ');
+  const shopImage = item.shops ? item.shops.image : null;
+  const sizes = item.fashion_item_sizes.map(sizeItem => sizeItem.sizes.name).sort((a, b) => {
+    const sizeOrder = ['XS', 'S', 'M', 'L', 'XL'];
+    return sizeOrder.indexOf(a) - sizeOrder.indexOf(b);
+  }).join(' | ');
   const colors = item.fashion_item_colors.map(colorItem => colorItem.colors.name).join(', ');
 
   const handleViewShop = () => {
@@ -174,11 +246,15 @@ const Item = () => {
               <RatingStar key={i} name="star" size={20} color={Colors.lightGrey} />
             ))}
             <Text style={styles.reviewText}>({reviewCount})</Text>
-            <TouchableOpacity style={styles.heartButton}>
+            <TouchableOpacity style={styles.heartButton} onPress={addToFavorites}>
               <Icon name="heart" size={24} color={Colors.blueIris} />
             </TouchableOpacity>
           </View>
         </View>
+        {/* <TouchableOpacity onPress={handleBuyPress} style={styles.buyButton}>
+          <Text style={styles.buyButtonText}>Koop</Text>
+        </TouchableOpacity> */}
+        {/* <View style={styles.separator}></View>         */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Beschrijving</Text>
           <View style={styles.descriptionContainer}>
@@ -187,13 +263,34 @@ const Item = () => {
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Productdetails</Text>
-          <Text style={styles.sectionContent}>Maat: Verkrijgbaar in {sizes}</Text>
           <Text style={styles.sectionContent}>Kleur: {colors}</Text>
+          <Text style={styles.sectionContent}>Maat: Verkrijgbaar in {sizes}</Text>
+          {/* <View style={styles.sizesContainer}>
+            {sizes.length > 0 ? (
+              sizes.map((size, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => handleSizePress(size)}
+                  style={[
+                    styles.sizeButton,
+                    {
+                      borderColor: size === selectedSize ? Colors.blueIris : Colors.black,
+                      borderWidth: size === selectedSize ? 2 : 0.25,
+                    }
+                  ]}
+                >
+                  <Text style={styles.sizeText}>{size}</Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={styles.noSizesText}>Geen maten beschikbaar</Text>
+            )}
+          </View> */}
         </View>
         <View style={styles.section}>
           <View style={styles.sellerContainer}>
             <View style={styles.sellerInfo}>
-              <Image source={{ uri: firstPhoto }} style={styles.sellerImage} />
+              <Image source={{ uri: shopImage }} style={styles.sellerImage} />
               <Text style={styles.sellerName}>{shopName}</Text>
             </View>
             <TouchableOpacity style={styles.followButton} onPress={handleViewShop}>
@@ -265,6 +362,10 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: Colors.lightGrey,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: Colors.lightGrey,
   },
   itemName: {
     fontSize: 18,
@@ -344,6 +445,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  sizesContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  sizeButton: {
+    borderWidth: 0.25,
+    borderRadius: 5,
+    padding: 10,
+    marginRight: 10,
+    width: 40,
+    alignItems: 'center',
+  },
+  sizeText: {
+    color: Colors.black,
+    fontFamily: 'Roboto-Regular',
+    fontSize: 12,
+  },
+  noSizesText: {
+    fontSize: 12,
+    color: Colors.grey,
+    fontFamily: 'Roboto-Regular',
+  },
   reviewerInfo: {
     flexDirection: 'row',
     marginBottom: 5,
@@ -380,6 +503,22 @@ const styles = StyleSheet.create({
     color: Colors.black,
     fontSize: 16,
     fontFamily: 'Roboto-Regular',
+  },
+  buyButton: {
+    backgroundColor: Colors.black,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  buyButtonText: {
+    color: Colors.white,
+    fontFamily: 'Roboto-Regular',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
 

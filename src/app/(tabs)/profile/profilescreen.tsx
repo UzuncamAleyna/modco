@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import Colors from '@/src/constants/Colors';
 import ProfileList from '@/src/components/ProfileScreen/ProfileList';
@@ -7,6 +7,8 @@ import { Stack, useRouter } from 'expo-router';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useAuth } from '@/src/providers/AuthProvider';
 import { supabase } from '@/src/lib/supabase';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 export default function Profile() {
   const { session } = useAuth();
@@ -15,11 +17,13 @@ export default function Profile() {
   const [avatarUrl, setAvatarUrl] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    if (session) {
-      fetchProfile();
-    }
-  }, [session]);
+  useFocusEffect(
+    useCallback(() => {
+      if (session) {
+        fetchProfile();
+      }
+    }, [session])
+  );
 
   const fetchProfile = async () => {
     const { data: profileData, error } = await supabase

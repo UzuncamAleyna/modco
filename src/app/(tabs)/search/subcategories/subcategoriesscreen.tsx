@@ -2,6 +2,7 @@ import React from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/Octicons';
+
 import Colors from '@/src/constants/Colors';
 import CategoryListItem from '../../../../components/SearchScreen/CategoryListItem';
 import { Subcategory } from '@/src/types';

@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { View, Image, FlatList, Dimensions, StyleSheet } from 'react-native';
 import Colors from '../constants/Colors';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen'; 
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
+const banners = {
+  Dames: [
+    require('assets/images/damesbanner1.jpg'),
+    require('assets/images/damesbanner2.jpg'),
+    require('assets/images/damesbanner3.jpg'),
+  ],
+  Heren: [
+    require('assets/images/herenbanner1.jpg'),
+    require('assets/images/herenbanner2.jpg'),
+    require('assets/images/herenbanner3.jpg'),
+  ],
+};
 
-const banners = [
-  require('assets/images/pink-dress.jpg'),
-  require('assets/images/pink-dress.jpg'),
-  require('assets/images/pink-dress.jpg'),
-];
-
-const Banner = () => {
+const Banner = ({ selectedTab }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleScroll = (event) => {
@@ -24,7 +27,7 @@ const Banner = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={banners}
+        data={banners[selectedTab]}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -35,7 +38,7 @@ const Banner = () => {
         )}
       />
       <View style={styles.pageControl}>
-        {banners.map((_, index) => (
+        {banners[selectedTab].map((_, index) => (
           <View
             key={index}
             style={[styles.dot, currentIndex === index && styles.activeDot]}

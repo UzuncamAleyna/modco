@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useAuth } from '@/src/providers/AuthProvider';
 import { supabase } from '@/src/lib/supabase';
 import Colors from '@/src/constants/Colors';
@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/Octicons';
 import { useRouter } from 'expo-router';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import FavoritesList from '@/src/components/FavoritesScreen/FavoritesList';
+import { useFocusEffect } from '@react-navigation/native';
 
 type FashionItemPhoto = {
   url: string;
@@ -35,12 +36,6 @@ const Favorites = () => {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (session) {
-      fetchFavorites();
-    }
-  }, [session]);
-
   const fetchFavorites = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -55,7 +50,7 @@ const Favorites = () => {
           fashion_item_sizes (size_id)
         )
       `)
-      .eq('user_id', session.user.id);
+      .eq('user_id', session?.user.id);
 
     if (error) {
       console.error('Error fetching favorites:', error.message);
@@ -84,9 +79,13 @@ const Favorites = () => {
     setLoading(false);
   };
 
-  const refreshFavorites = () => {
-    fetchFavorites();
-  };
+  useFocusEffect(
+    useCallback(() => {
+      if (session) {
+        fetchFavorites();
+      }
+    }, [session])
+  );
 
   if (!session) {
     return (
@@ -112,7 +111,11 @@ const Favorites = () => {
   }
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={Colors.blueIris} />
+      </View>
+    );
   }
 
   if (favorites.length === 0) {
@@ -131,7 +134,7 @@ const Favorites = () => {
   }
 
   return (
-    <FavoritesList favorites={favorites} refreshFavorites={refreshFavorites} />
+    <FavoritesList favorites={favorites} refreshFavorites={fetchFavorites} />
   );
 };
 

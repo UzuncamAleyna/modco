@@ -6,9 +6,9 @@ import { useRouter } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const ProductListSection = ({ title }) => {
+const ProductListSection = ({ title, items, selectedTab }) => {
   const router = useRouter();
-  const [items, setItems] = useState([]);
+  const [fetchedItems, setFetchedItems] = useState([]);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -26,17 +26,16 @@ const ProductListSection = ({ title }) => {
       if (error) {
         console.error('Error fetching items:', error.message);
       } else {
-        console.log('Fetched Items:', JSON.stringify(data, null, 2));
-        setItems(data);
+        setFetchedItems(data);
       }
     };
     fetchItems();
-  }, []);
+  }, [items]);
 
   const handleDiscoverMore = () => {
     router.push({
-      pathname: `/home/section/${title}`,
-      params: { items: JSON.stringify(items) }
+      pathname: `/home/homesectionpage/${title}`,
+      params: { selectedTab: selectedTab, title: title },
     });
   };
 

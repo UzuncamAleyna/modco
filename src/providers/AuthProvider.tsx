@@ -9,6 +9,7 @@ interface AuthContextType {
     setSession: Dispatch<SetStateAction<Session | null>>;
     setProfile: Dispatch<SetStateAction<any>>;
     setIsDesigner: Dispatch<SetStateAction<boolean>>;
+    refreshAuthStatus: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
     setSession: () => {},
     setProfile: () => {},
     setIsDesigner: () => {},
+    refreshAuthStatus: () => {},
 });
 
 export default function AuthProvider({ children }) {
@@ -25,6 +27,19 @@ export default function AuthProvider({ children }) {
     const [profile, setProfile] = useState<any>(null);
     const [isDesigner, setIsDesigner] = useState<boolean>(false);
 
+    const refreshAuthStatus = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+
+        if (session) {
+            const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+            setProfile(data || null);
+            setIsDesigner(data?.group === 'DESIGNER');
+        } else {
+            setProfile(null);
+            setIsDesigner(false);
+        }
+    };
     useEffect(() => {
         const getSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
@@ -65,7 +80,7 @@ export default function AuthProvider({ children }) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ session, profile, isDesigner, setSession, setProfile, setIsDesigner }}>
+        <AuthContext.Provider value={{ session, profile, isDesigner, setSession, setProfile, setIsDesigner, refreshAuthStatus }}>
             {children}
         </AuthContext.Provider>
     );
